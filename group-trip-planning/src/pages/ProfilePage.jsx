@@ -1,19 +1,61 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   MapPin, Star, Users, Calendar, Edit3, Settings, 
-  Camera, Heart, Plus, Eye, Share2 
+  Camera, Heart, Plus, Eye, Share2, Sparkles, Trash2
 } from 'lucide-react'
 import { currentUser, itineraries } from '../data/mockData'
+import { getPublishedItineraries, deletePublishedItinerary } from '../utils/itineraryStorage'
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('trips')
   const [isEditing, setIsEditing] = useState(false)
+  const [publishedItineraries, setPublishedItineraries] = useState([])
 
-  const userTrips = itineraries.filter(trip => trip.createdBy.id === currentUser.id)
+  // Load published itineraries on component mount and when page becomes visible
+  useEffect(() => {
+    const loadPublishedItineraries = () => {
+      const published = getPublishedItineraries()
+      setPublishedItineraries(published)
+    }
+    
+    // Load initially
+    loadPublishedItineraries()
+    
+    // Listen for focus events to refresh when returning from Create page
+    const handleFocus = () => {
+      loadPublishedItineraries()
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+    }
+  }, [])
+
+  // Combine mock data trips with published itineraries
+  const mockUserTrips = itineraries.filter(trip => trip.createdBy.id === currentUser.id)
+  const userTrips = [...publishedItineraries, ...mockUserTrips]
+  
   const joinedTrips = itineraries.filter(trip => 
     trip.participants.some(p => p.id === currentUser.id) && trip.createdBy.id !== currentUser.id
   )
+
+  // Handle deleting a published itinerary
+  const handleDeleteItinerary = (itineraryId) => {
+    if (window.confirm('Are you sure you want to delete this itinerary? This action cannot be undone.')) {
+      const success = deletePublishedItinerary(itineraryId)
+      if (success) {
+        // Refresh the list
+        const updated = getPublishedItineraries()
+        setPublishedItineraries(updated)
+        alert('Itinerary deleted successfully.')
+      } else {
+        alert('Error deleting itinerary. Please try again.')
+      }
+    }
+  }
 
   const tabs = [
     { id: 'trips', label: 'My Trips', count: userTrips.length },
@@ -105,6 +147,11 @@ const ProfilePage = () => {
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-600">{userTrips.length}</div>
               <div className="text-sm text-gray-600">Trips Created</div>
+              {publishedItineraries.length > 0 && (
+                <div className="text-xs text-purple-600 font-medium mt-1">
+                  {publishedItineraries.length} Published
+                </div>
+              )}
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-600">{joinedTrips.length}</div>
@@ -148,7 +195,17 @@ const ProfilePage = () => {
         {activeTab === 'trips' && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">My Created Trips</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">My Created Trips</h2>
+                {publishedItineraries.length > 0 && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    {publishedItineraries.length} published trip{publishedItineraries.length !== 1 ? 's' : ''} 
+                    {publishedItineraries.filter(trip => trip.isAIGenerated).length > 0 && 
+                      ` • ${publishedItineraries.filter(trip => trip.isAIGenerated).length} AI-generated`
+                    }
+                  </p>
+                )}
+              </div>
               <Link to="/create" className="btn-primary flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
                 <span>Create New Trip</span>
@@ -157,59 +214,88 @@ const ProfilePage = () => {
 
             {userTrips.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {userTrips.map((trip) => (
-                  <div key={trip.id} className="card">
-                    <div className="aspect-w-16 aspect-h-9">
-                      <img
-                        src={trip.image}
-                        alt={trip.title}
-                        className="w-full h-48 object-cover"
-                      />
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">
-                          Active
-                        </span>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-medium">{trip.rating}</span>
+                {userTrips.map((trip) => {
+                  const isPublished = publishedItineraries.some(p => p.id === trip.id);
+                  const isAIGenerated = trip.isAIGenerated;
+                  
+                  return (
+                    <div key={trip.id} className="card">
+                      <div className="aspect-w-16 aspect-h-9 relative">
+                        <img
+                          src={trip.image}
+                          alt={trip.title}
+                          className="w-full h-48 object-cover"
+                        />
+                        {isPublished && (
+                          <div className="absolute top-2 left-2">
+                            {isAIGenerated ? (
+                              <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded flex items-center space-x-1">
+                                <Sparkles className="h-3 w-3" />
+                                <span>AI Generated</span>
+                              </span>
+                            ) : (
+                              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
+                                Sample
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">
+                            {isPublished ? 'Published' : 'Active'}
+                          </span>
+                          <div className="flex items-center space-x-1">
+                            <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                            <span className="text-sm font-medium">{trip.rating || 'New'}</span>
+                          </div>
+                        </div>
+
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                          {trip.title}
+                        </h3>
+                        
+                        <p className="text-gray-600 mb-3">
+                          {trip.destination} • {trip.duration}
+                        </p>
+
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="flex items-center text-sm text-gray-500">
+                            <Users className="h-4 w-4 mr-1" />
+                            {trip.participants?.length || 0}/{trip.groupSize || '2-4'} joined
+                          </span>
+                          <span className="text-lg font-bold text-primary-600">
+                            ${trip.price}
+                          </span>
+                        </div>
+
+                        <div className="flex space-x-2">
+                          <Link
+                            to={`/trip/${trip.id}`}
+                            className="flex-1 btn-secondary text-center flex items-center justify-center space-x-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            <span>View</span>
+                          </Link>
+                          {isPublished ? (
+                            <button 
+                              onClick={() => handleDeleteItinerary(trip.id)}
+                              className="flex-1 btn-secondary bg-red-50 border-red-200 text-red-600 hover:bg-red-100 flex items-center justify-center space-x-1"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span>Delete</span>
+                            </button>
+                          ) : (
+                            <button className="flex-1 btn-primary">
+                              Edit
+                            </button>
+                          )}
                         </div>
                       </div>
-
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {trip.title}
-                      </h3>
-                      
-                      <p className="text-gray-600 mb-3">
-                        {trip.destination} • {trip.duration}
-                      </p>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="flex items-center text-sm text-gray-500">
-                          <Users className="h-4 w-4 mr-1" />
-                          {trip.participants.length}/{trip.groupSize} joined
-                        </span>
-                        <span className="text-lg font-bold text-primary-600">
-                          ${trip.price}
-                        </span>
-                      </div>
-
-                      <div className="flex space-x-2">
-                        <Link
-                          to={`/trip/${trip.id}`}
-                          className="flex-1 btn-secondary text-center flex items-center justify-center space-x-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span>View</span>
-                        </Link>
-                        <button className="flex-1 btn-primary">
-                          Edit
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
               <div className="text-center py-12 bg-white rounded-xl">

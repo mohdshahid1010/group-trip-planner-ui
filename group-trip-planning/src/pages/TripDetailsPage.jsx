@@ -1,25 +1,87 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { 
   MapPin, Calendar, Users, Star, Share2, Heart, 
   CheckCircle, XCircle, Clock, DollarSign, Utensils, 
-  Bed, Navigation, Camera, ArrowLeft
+  Bed, Navigation, Camera, ArrowLeft, Sparkles
 } from 'lucide-react'
 import { itineraries, reviews } from '../data/mockData'
+import { getPublishedItineraries } from '../utils/itineraryStorage'
 
 const TripDetailsPage = () => {
   const { id } = useParams()
-  const trip = itineraries.find(t => t.id === parseInt(id))
+  const [trip, setTrip] = useState(null)
   const [activeTab, setActiveTab] = useState('itinerary')
   const [showJoinModal, setShowJoinModal] = useState(false)
+  const [isPublished, setIsPublished] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  // Load trip data from both mock data and published itineraries
+  useEffect(() => {
+    const tripId = parseInt(id)
+    
+    // First check mock data
+    let foundTrip = itineraries.find(t => t.id === tripId)
+    let published = false
+    
+    if (!foundTrip) {
+      // Check published itineraries
+      const publishedTrips = getPublishedItineraries()
+      foundTrip = publishedTrips.find(t => t.id === tripId)
+      
+      if (foundTrip) {
+        published = true
+        // Convert published trip format to display format
+        foundTrip = {
+          ...foundTrip,
+          // Add default values for fields that might not exist in published trips
+          rating: foundTrip.rating || 0,
+          reviewCount: foundTrip.reviewCount || 0,
+          compatibilityScore: 95, // Default high match for user's own trips
+          availableSlots: foundTrip.groupSize ? parseInt(foundTrip.groupSize.split('-')[1]) - (foundTrip.participants?.length || 0) : 4,
+          participants: foundTrip.participants || [],
+          inclusions: foundTrip.highlights || [],
+          exclusions: [
+            'International flights',
+            'Personal expenses',
+            'Travel insurance',
+            'Visa fees (if applicable)'
+          ],
+          // Convert days format to itinerary format if needed
+          itinerary: foundTrip.days ? foundTrip.days.map(day => ({
+            day: day.day,
+            title: day.title || `Day ${day.day}`,
+            activities: day.activities || [],
+            accommodation: day.highlights || 'Local accommodation',
+            meals: ['Breakfast', 'Lunch'] // Default meals
+          })) : []
+        }
+      }
+    }
+    
+    setTrip(foundTrip)
+    setIsPublished(published)
+    setLoading(false)
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading trip details...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!trip) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Trip not found</h2>
-          <Link to="/explore" className="btn-primary">
-            Back to Explore
+          <Link to={isPublished ? "/profile" : "/explore"} className="btn-primary">
+            {isPublished ? 'Back to Profile' : 'Back to Explore'}
           </Link>
         </div>
       </div>
@@ -51,24 +113,48 @@ const TripDetailsPage = () => {
         
         {/* Back Button */}
         <Link
-          to="/explore"
+          to={isPublished ? "/profile" : "/explore"}
           className="absolute top-6 left-6 bg-white bg-opacity-90 text-gray-900 p-2 rounded-full hover:bg-opacity-100 transition-all"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
+
+        {/* Published Trip Indicator */}
+        {isPublished && (
+          <div className="absolute top-6 right-6">
+            {trip?.isAIGenerated ? (
+              <div className="bg-purple-500 bg-opacity-90 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                <Sparkles className="h-4 w-4" />
+                <span>AI Generated</span>
+              </div>
+            ) : (
+              <div className="bg-blue-500 bg-opacity-90 text-white px-3 py-1 rounded-full text-sm font-medium">
+                Sample Trip
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Hero Content */}
         <div className="absolute bottom-8 left-8 right-8">
           <div className="flex items-start justify-between">
             <div className="text-white">
               <div className="flex items-center space-x-4 mb-4">
-                <span className="bg-primary-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-                  {trip.compatibilityScore}% match
-                </span>
+                {isPublished ? (
+                  <span className="bg-green-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                    Your Trip
+                  </span>
+                ) : (
+                  <span className="bg-primary-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                    {trip.compatibilityScore}% match
+                  </span>
+                )}
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                  <span className="font-medium">{trip.rating}</span>
-                  <span className="text-gray-300">({trip.reviewCount} reviews)</span>
+                  <span className="font-medium">{trip.rating || 'New'}</span>
+                  <span className="text-gray-300">
+                    ({trip.reviewCount || 0} review{trip.reviewCount !== 1 ? 's' : ''})
+                  </span>
                 </div>
               </div>
               <h1 className="text-4xl font-bold mb-2">{trip.title}</h1>
@@ -172,33 +258,46 @@ const TripDetailsPage = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-4">Trip Highlights</h3>
-                    <ul className="space-y-2">
-                      {trip.highlights.map((highlight, index) => (
-                        <li key={index} className="flex items-start space-x-2">
-                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                          <span className="text-gray-700">{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {trip.highlights && trip.highlights.length > 0 ? (
+                      <ul className="space-y-2">
+                        {trip.highlights.map((highlight, index) => (
+                          <li key={index} className="flex items-start space-x-2">
+                            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                            <span className="text-gray-700">{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-600 italic">
+                        {isPublished 
+                          ? "This is your published trip. Highlights will be added as travelers join and provide feedback." 
+                          : "Highlights coming soon!"}
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-3">What's Included</h4>
                       <ul className="space-y-2">
-                        {trip.inclusions.map((inclusion, index) => (
+                        {trip.inclusions?.map((inclusion, index) => (
                           <li key={index} className="flex items-start space-x-2 text-gray-700">
                             <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
                             <span>{inclusion}</span>
                           </li>
-                        ))}
+                        )) || (
+                          <li className="flex items-start space-x-2 text-gray-700">
+                            <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                            <span>Detailed inclusions list will be provided upon booking</span>
+                          </li>
+                        )}
                       </ul>
                     </div>
 
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-3">What's Not Included</h4>
                       <ul className="space-y-2">
-                        {trip.exclusions.map((exclusion, index) => (
+                        {trip.exclusions?.map((exclusion, index) => (
                           <li key={index} className="flex items-start space-x-2 text-gray-700">
                             <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
                             <span>{exclusion}</span>
@@ -222,16 +321,17 @@ const TripDetailsPage = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-bold text-gray-900">
-                      Current Travelers ({trip.participants.length}/{trip.groupSize})
+                      Current Travelers ({trip.participants?.length || 0}/{trip.groupSize || '2-4'})
                     </h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
                       <Users className="h-4 w-4" />
-                      <span>{trip.availableSlots} spots remaining</span>
+                      <span>{trip.availableSlots || 4} spots remaining</span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {trip.participants.map((participant) => (
+                  {trip.participants && trip.participants.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {trip.participants.map((participant) => (
                       <div key={participant.id} className="bg-gray-50 rounded-lg p-4">
                         <div className="flex items-center space-x-3 mb-3">
                           <img
@@ -262,44 +362,54 @@ const TripDetailsPage = () => {
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No travelers have joined yet. Be the first to join this amazing adventure!</p>
+                    </div>
+                  )}
 
                   {/* Trip Creator */}
-                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <img
-                        src={trip.createdBy.avatar}
-                        alt={trip.createdBy.name}
-                        className="h-12 w-12 rounded-full ring-2 ring-primary-500"
-                      />
-                      <div>
-                        <h4 className="font-medium text-gray-900 flex items-center">
-                          {trip.createdBy.name}
-                          <span className="ml-2 px-2 py-1 bg-primary-500 text-white text-xs rounded-full">
-                            Trip Organizer
-                          </span>
-                        </h4>
-                        <p className="text-sm text-gray-600">{trip.createdBy.location}</p>
+                  {trip.createdBy && (
+                    <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <img
+                          src={trip.createdBy.avatar}
+                          alt={trip.createdBy.name}
+                          className="h-12 w-12 rounded-full ring-2 ring-primary-500"
+                        />
+                        <div>
+                          <h4 className="font-medium text-gray-900 flex items-center">
+                            {trip.createdBy.name}
+                            <span className="ml-2 px-2 py-1 bg-primary-500 text-white text-xs rounded-full">
+                              {isPublished ? 'You' : 'Trip Organizer'}
+                            </span>
+                          </h4>
+                          <p className="text-sm text-gray-600">{trip.createdBy.location || 'Location not specified'}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-3">
+                        {trip.createdBy.bio || 'Passionate traveler and trip organizer'}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap gap-1">
+                          {(trip.createdBy.interests || trip.tags || ['Adventure', 'Culture', 'Food']).slice(0, 3).map((interest) => (
+                            <span
+                              key={interest}
+                              className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
+                            >
+                              {interest}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {trip.createdBy.tripCount || 1} trips organized
+                        </div>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-700 mb-3">{trip.createdBy.bio}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {trip.createdBy.interests.slice(0, 3).map((interest) => (
-                          <span
-                            key={interest}
-                            className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
-                          >
-                            {interest}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {trip.createdBy.tripCount} trips organized
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -390,11 +500,11 @@ const TripDetailsPage = () => {
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-200">
                   <span className="text-gray-600">Group Size</span>
-                  <span className="font-medium">{trip.groupSize} people</span>
+                  <span className="font-medium">{trip.groupSize || '2-4'} people</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-200">
                   <span className="text-gray-600">Available Spots</span>
-                  <span className="font-medium text-green-600">{trip.availableSlots} left</span>
+                  <span className="font-medium text-green-600">{trip.availableSlots || 4} left</span>
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <span className="text-gray-600">Departure</span>
@@ -402,7 +512,17 @@ const TripDetailsPage = () => {
                 </div>
               </div>
 
-              {trip.availableSlots > 0 ? (
+              {isPublished ? (
+                <div className="text-center py-3 mb-4">
+                  <p className="text-sm text-gray-600 mb-2">This is your published trip</p>
+                  <button
+                    className="w-full bg-green-100 text-green-800 py-3 rounded-lg font-medium"
+                    disabled
+                  >
+                    Your Trip
+                  </button>
+                </div>
+              ) : trip.availableSlots > 0 ? (
                 <button
                   onClick={() => setShowJoinModal(true)}
                   className="w-full btn-primary text-lg py-3 mb-4"
