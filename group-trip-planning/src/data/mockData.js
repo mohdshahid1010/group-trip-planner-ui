@@ -47,7 +47,7 @@ export const itineraries = [
     duration: "7 days",
     startDate: "2024-03-15",
     endDate: "2024-03-22",
-    price: 1899,
+    price: 25000,
     groupSize: 6,
     availableSlots: 2,
     compatibilityScore: 95,
@@ -91,7 +91,7 @@ export const itineraries = [
     duration: "10 days",
     startDate: "2024-04-10",
     endDate: "2024-04-20",
-    price: 2750,
+    price: 45000,
     groupSize: 4,
     availableSlots: 1,
     compatibilityScore: 88,
@@ -121,7 +121,7 @@ export const itineraries = [
     duration: "12 days",
     startDate: "2024-02-28",
     endDate: "2024-03-12",
-    price: 3200,
+    price: 65000,
     groupSize: 8,
     availableSlots: 3,
     compatibilityScore: 92,
@@ -143,7 +143,7 @@ export const itineraries = [
     duration: "8 days",
     startDate: "2024-05-01",
     endDate: "2024-05-09",
-    price: 1650,
+    price: 18000,
     groupSize: 6,
     availableSlots: 4,
     compatibilityScore: 85,
@@ -166,28 +166,28 @@ export const featuredDestinations = [
     name: "Morocco",
     image: "https://images.unsplash.com/photo-1539650116574-75c0c6d04e2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
     tripCount: 12,
-    avgPrice: 1899
+    avgPrice: 25000
   },
   {
     id: 2,
     name: "Japan",
     image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
     tripCount: 8,
-    avgPrice: 2750
+    avgPrice: 45000
   },
   {
     id: 3,
     name: "Patagonia",
     image: "https://images.unsplash.com/photo-1610296669228-602fa827264c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
     tripCount: 6,
-    avgPrice: 3200
+    avgPrice: 65000
   },
   {
     id: 4,
     name: "Bali",
     image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
     tripCount: 15,
-    avgPrice: 1650
+    avgPrice: 18000
   }
 ];
 

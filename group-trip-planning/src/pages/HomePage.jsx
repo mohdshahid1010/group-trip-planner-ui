@@ -105,7 +105,7 @@ const HomePage = () => {
                       {destination.tripCount} trips
                     </span>
                     <span className="font-semibold">
-                      from ${destination.avgPrice}
+                      from ₹{destination.avgPrice.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -165,7 +165,7 @@ const HomePage = () => {
                       </span>
                     </div>
                     <span className="text-2xl font-bold text-primary-600">
-                      ${trip.price}
+                      ₹{trip.price.toLocaleString()}
                     </span>
                   </div>
                 </div>
