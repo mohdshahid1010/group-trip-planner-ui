@@ -1,0 +1,8 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="192" height="192" rx="24" fill="#3b82f6"/>
+<path d="M96 48C96 46.8954 95.1046 46 94 46H58C56.8954 46 56 46.8954 56 48V64C56 65.1046 56.8954 66 58 66H94C95.1046 66 96 65.1046 96 64V48Z" fill="white"/>
+<path d="M136 48C136 46.8954 135.105 46 134 46H98C96.8954 46 96 46.8954 96 48V64C96 65.1046 96.8954 66 98 66H134C135.105 66 136 65.1046 136 64V48Z" fill="white"/>
+<circle cx="96" cy="96" r="32" fill="white"/>
+<path d="M96 128L76 148H116L96 128Z" fill="white"/>
+<text x="96" y="170" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">TravelMate</text>
+</svg>
