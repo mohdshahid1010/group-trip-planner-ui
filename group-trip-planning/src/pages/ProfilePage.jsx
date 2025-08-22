@@ -206,10 +206,18 @@ const ProfilePage = () => {
                   </p>
                 )}
               </div>
-              <Link to="/create" className="btn-primary flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>Create New Trip</span>
-              </Link>
+              <div className="flex items-center space-x-3">
+                {publishedItineraries.length > 0 && (
+                  <Link to="/mytrips" className="btn-secondary flex items-center space-x-2">
+                    <Eye className="h-4 w-4" />
+                    <span>View All My Trips</span>
+                  </Link>
+                )}
+                <Link to="/create" className="btn-primary flex items-center space-x-2">
+                  <Plus className="h-4 w-4" />
+                  <span>Create New Trip</span>
+                </Link>
+              </div>
             </div>
 
             {userTrips.length > 0 ? (
@@ -266,13 +274,13 @@ const ProfilePage = () => {
                             {trip.participants?.length || 0}/{trip.groupSize || '2-4'} joined
                           </span>
                           <span className="text-lg font-bold text-primary-600">
-                            ${trip.price}
+                            ₹{trip.price}
                           </span>
                         </div>
 
                         <div className="flex space-x-2">
                           <Link
-                            to={`/trip/${trip.id}`}
+                            to={isPublished ? `/mytrip/${trip.id}` : `/trip/${trip.id}`}
                             className="flex-1 btn-secondary text-center flex items-center justify-center space-x-1"
                           >
                             <Eye className="h-4 w-4" />
@@ -434,7 +442,7 @@ const ProfilePage = () => {
               <div className="bg-white rounded-xl p-6">
                 <div className="flex items-start space-x-4">
                   <img
-                    src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                     alt="Reviewer"
                     className="h-12 w-12 rounded-full"
                   />
@@ -459,7 +467,7 @@ const ProfilePage = () => {
               <div className="bg-white rounded-xl p-6">
                 <div className="flex items-start space-x-4">
                   <img
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                     alt="Reviewer"
                     className="h-12 w-12 rounded-full"
                   />

@@ -42,7 +42,7 @@ export const savePublishedItinerary = (generatedItinerary, formData) => {
       createdBy: {
         id: USER_ID,
         name: "Olivia Bennett", // From mockData currentUser
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b647?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b647?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
       },
       createdAt: new Date().toISOString(),
       isPublished: true,

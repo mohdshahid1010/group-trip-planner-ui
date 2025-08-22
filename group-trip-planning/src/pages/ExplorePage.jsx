@@ -1,35 +1,70 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, MapPin, Calendar, Leaf, Camera, Heart, Coffee, Loader } from 'lucide-react'
+import { Search, MapPin, Calendar, Leaf, Camera, Heart, Coffee, Loader, Mountain, Waves, Utensils, Plane, Building } from 'lucide-react'
 import { searchItineraries } from '../services/api'
 
 const ExplorePage = () => {
   const navigate = useNavigate()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [description, setDescription] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [budgetRange, setBudgetRange] = useState('all')
-  const [includeTravel, setIncludeTravel] = useState(true)
-  const [includeAccommodation, setIncludeAccommodation] = useState(true)
-  const [selectedVibes, setSelectedVibes] = useState([])
-  const [groupSizeFilter, setGroupSizeFilter] = useState('all')
+  const [searchCriteria, setSearchCriteria] = useState({
+    prompt: '',
+    source: '',
+    destination: '',
+    startDate: '',
+    endDate: '',
+    budget: {
+      min: '',
+      max: ''
+    },
+    vibe: '',
+    includeTravel: true,
+    includeAccommodation: true
+  })
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
 
+  // Get today's date in local timezone for date restrictions
+  const getTodayDate = () => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   const vibes = [
-    { id: 'adventure', label: 'Adventure', icon: Camera },
-    { id: 'eco-conscious', label: 'Eco-conscious', icon: Leaf },
-    { id: 'culture', label: 'Culture', icon: Coffee },
-    { id: 'wellness', label: 'Wellness', icon: Heart },
+    { id: 'BEACHES', label: 'Beaches', icon: Waves },
+    { id: 'ADVENTURE', label: 'Adventure', icon: Mountain },
+    { id: 'CULTURAL', label: 'Cultural', icon: Coffee },
+    { id: 'WELLNESS', label: 'Wellness', icon: Heart },
+    { id: 'FOODIE', label: 'Food & Wine', icon: Utensils },
+    { id: 'NATURE', label: 'Nature', icon: Leaf },
+    { id: 'PHOTOGRAPHY', label: 'Photography', icon: Camera },
+    { id: 'LUXURY', label: 'Luxury', icon: Building }
   ]
 
-  const toggleVibe = (vibeId) => {
-    setSelectedVibes(prev => 
-      prev.includes(vibeId) 
-        ? prev.filter(id => id !== vibeId)
-        : [...prev, vibeId]
-    )
+  const handleInputChange = (field, value) => {
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.')
+      setSearchCriteria(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }))
+    } else {
+      setSearchCriteria(prev => ({
+        ...prev,
+        [field]: value
+      }))
+    }
+  }
+
+  const handleVibeSelect = (vibeId) => {
+    setSearchCriteria(prev => ({
+      ...prev,
+      vibe: prev.vibe === vibeId ? '' : vibeId
+    }))
   }
 
   const handleSearch = async () => {
@@ -38,39 +73,31 @@ const ExplorePage = () => {
     setIsSearching(true)
 
     try {
-      // Prepare search data for API
-      const searchData = {
-        searchQuery,
-        description,
-        startDate,
-        endDate,
-        budgetRange,
-        groupSizeFilter,
-        selectedVibes,
-        includeTravel,
-        includeAccommodation
+      // Validate required fields
+      if (!searchCriteria.destination.trim()) {
+        setSearchError('Please enter a destination')
+        setIsSearching(false)
+        return
       }
 
-      // Call the Java API
-      const response = await searchItineraries(searchData)
+      // Call the search API with enhanced criteria
+      const response = await searchItineraries(searchCriteria)
 
       if (response.success) {
         // Navigate to search results page with the API response
         const searchParams = new URLSearchParams({
-          ...(searchQuery && { destination: searchQuery }),
-          ...(description && { description }),
-          ...(startDate && { startDate }),
-          ...(endDate && { endDate }),
-          ...(budgetRange !== 'all' && { budget: budgetRange }),
-          ...(groupSizeFilter !== 'all' && { groupSize: groupSizeFilter }),
-          ...(selectedVibes.length > 0 && { vibes: selectedVibes.join(',') }),
-          includeTravel: includeTravel.toString(),
-          includeAccommodation: includeAccommodation.toString()
+          ...(searchCriteria.destination && { destination: searchCriteria.destination }),
+          ...(searchCriteria.source && { source: searchCriteria.source }),
+          ...(searchCriteria.startDate && { startDate: searchCriteria.startDate }),
+          ...(searchCriteria.endDate && { endDate: searchCriteria.endDate }),
+          ...(searchCriteria.vibe && { vibe: searchCriteria.vibe }),
+          includeTravel: searchCriteria.includeTravel.toString(),
+          includeAccommodation: searchCriteria.includeAccommodation.toString()
         })
 
         // Pass the search results via navigation state
         navigate(`/search-results?${searchParams.toString()}`, {
-          state: { searchResults: response.data }
+          state: { searchResults: response.data, searchCriteria }
         })
       } else {
         // Handle API error
@@ -85,15 +112,20 @@ const ExplorePage = () => {
   }
 
   const clearAllFilters = () => {
-    setSelectedVibes([])
-    setBudgetRange('all')
-    setGroupSizeFilter('all')
-    setSearchQuery('')
-    setDescription('')
-    setStartDate('')
-    setEndDate('')
-    setIncludeTravel(true)
-    setIncludeAccommodation(true)
+    setSearchCriteria({
+      prompt: '',
+      source: '',
+      destination: '',
+      startDate: '',
+      endDate: '',
+      budget: {
+        min: '',
+        max: ''
+      },
+      vibe: '',
+      includeTravel: true,
+      includeAccommodation: true
+    })
     setSearchError('')
   }
 
@@ -134,63 +166,149 @@ const ExplorePage = () => {
         {/* Centered Search Form */}
         <div className="bg-white rounded-2xl p-8 shadow-lg">
           <div className="space-y-6">
-            {/* Detailed Description */}
-            <div className="relative">
+            {/* Detailed Prompt */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Describe your ideal trip
+              </label>
               <textarea
-                placeholder="Write a detailed description of your ideal trip..."
-                className="input-field min-h-[100px] resize-none text-base"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tell us about your perfect travel experience - activities, atmosphere, special interests..."
+                className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent min-h-[100px] resize-none text-base"
+                value={searchCriteria.prompt}
+                onChange={(e) => handleInputChange('prompt', e.target.value)}
                 rows="4"
               />
             </div>
+
+            {/* Source and Destination */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Starting from (optional)
+                </label>
+                <div className="relative">
+                  <Plane className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Your departure city"
+                    className="w-full pl-10 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    value={searchCriteria.source}
+                    onChange={(e) => handleInputChange('source', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Destination <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Where do you want to go?"
+                    className="w-full pl-10 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    value={searchCriteria.destination}
+                    onChange={(e) => handleInputChange('destination', e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
             
-            {/* Date and Destination Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Where do you want to go?"
-                  className="input-field pl-10 text-base"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+            {/* Dates */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Start Date
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="date"
+                    className="w-full pl-10 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    value={searchCriteria.startDate}
+                    onChange={(e) => {
+                      handleInputChange('startDate', e.target.value);
+                      // Clear end date if it's before the new start date
+                      if (searchCriteria.endDate && e.target.value && new Date(e.target.value) >= new Date(searchCriteria.endDate)) {
+                        handleInputChange('endDate', '');
+                      }
+                    }}
+                    min={getTodayDate()}
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="date"
-                  placeholder="Start Date"
-                  className="input-field pl-10 text-base"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </div>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="date"
-                  placeholder="End Date"
-                  className="input-field pl-10 text-base"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  End Date
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="date"
+                    className={`w-full pl-10 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent ${!searchCriteria.startDate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    value={searchCriteria.endDate}
+                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    disabled={!searchCriteria.startDate}
+                    min={searchCriteria.startDate ? (() => {
+                      const startDate = new Date(searchCriteria.startDate);
+                      const nextDay = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+                      const year = nextDay.getFullYear();
+                      const month = String(nextDay.getMonth() + 1).padStart(2, '0');
+                      const day = String(nextDay.getDate()).padStart(2, '0');
+                      return `${year}-${month}-${day}`;
+                    })() : ''}
+                  />
+                </div>
+                {!searchCriteria.startDate && (
+                  <p className="text-xs text-gray-500 mt-1">Please select a start date first</p>
+                )}
               </div>
             </div>
 
-            {/* Travel Vibes */}
-            <div className="space-y-4">
-              <h4 className="text-base font-semibold text-gray-900">Travel Vibes</h4>
+            {/* Budget Range */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Budget per person (INR)
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative">
+                  <input
+                    type="number"
+                    placeholder="Min budget (₹)"
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    value={searchCriteria.budget.min}
+                    onChange={(e) => handleInputChange('budget.min', e.target.value)}
+                    min="0"
+                  />
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    placeholder="Max budget (₹)"
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    value={searchCriteria.budget.max}
+                    onChange={(e) => handleInputChange('budget.max', e.target.value)}
+                    min={searchCriteria.budget.min || "0"}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Travel Vibe Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Travel Vibe
+              </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {vibes.map((vibe) => {
                   const Icon = vibe.icon
                   return (
                     <button
                       key={vibe.id}
-                      onClick={() => toggleVibe(vibe.id)}
-                      className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all font-medium ${
-                        selectedVibes.includes(vibe.id)
+                      onClick={() => handleVibeSelect(vibe.id)}
+                      className={`flex items-center justify-center space-x-2 p-4 rounded-xl border-2 transition-all font-medium ${
+                        searchCriteria.vibe === vibe.id
                           ? 'border-primary-500 bg-primary-50 text-primary-700'
                           : 'border-gray-200 hover:border-gray-300 text-gray-700'
                       }`}
@@ -203,88 +321,56 @@ const ExplorePage = () => {
               </div>
             </div>
 
-            {/* Budget Range and Group Size Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-base font-semibold text-gray-900 mb-3">Budget Range</h4>
-                <select
-                  value={budgetRange}
-                  onChange={(e) => setBudgetRange(e.target.value)}
-                  className="input-field w-full text-base"
-                >
-                  <option value="all">All budgets</option>
-                  <option value="budget">Budget (Under ₹10,000)</option>
-                  <option value="mid-range">Mid-range (₹10,001 - ₹30,000)</option>
-                  <option value="luxury">Luxury (₹30,001 - ₹60,000)</option>
-                  <option value="premium">Premium (₹60,001+)</option>
-                </select>
-              </div>
-              <div>
-                <h4 className="text-base font-semibold text-gray-900 mb-3">Group Size</h4>
-                <select
-                  value={groupSizeFilter}
-                  onChange={(e) => setGroupSizeFilter(e.target.value)}
-                  className="input-field w-full text-base"
-                >
-                  <option value="all">All sizes</option>
-                  <option value="small">Small (1-6 people)</option>
-                  <option value="medium">Medium (7-12 people)</option>
-                  <option value="large">Large (13+ people)</option>
-                </select>
+            {/* Include Options */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Include in Search
+              </label>
+              <div className="space-y-3">
+                <label className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    checked={searchCriteria.includeTravel}
+                    onChange={(e) => handleInputChange('includeTravel', e.target.checked)}
+                  />
+                  <span className="text-gray-700">Include travel/transportation</span>
+                </label>
+                <label className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    checked={searchCriteria.includeAccommodation}
+                    onChange={(e) => handleInputChange('includeAccommodation', e.target.checked)}
+                  />
+                  <span className="text-gray-700">Include accommodation</span>
+                </label>
               </div>
             </div>
 
-            {/* Include Options and Action Buttons Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-              <div>
-                <h4 className="text-base font-semibold text-gray-900 mb-3">Include</h4>
-                <div className="flex space-x-8">
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={includeTravel}
-                      onChange={(e) => setIncludeTravel(e.target.checked)}
-                      className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                    />
-                    <span className="text-base text-gray-700">Travel</span>
-                  </label>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={includeAccommodation}
-                      onChange={(e) => setIncludeAccommodation(e.target.checked)}
-                      className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                    />
-                    <span className="text-base text-gray-700">Accommodation</span>
-                  </label>
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <button
-                  onClick={clearAllFilters}
-                  className="btn-secondary text-base px-8 py-3"
-                >
-                  Clear All
-                </button>
-              </div>
-              <div className="flex justify-end">
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+              <button
+                onClick={clearAllFilters}
+                className="text-gray-500 hover:text-gray-700 font-medium transition-colors"
+              >
+                Clear all filters
+              </button>
+              
+              <div className="flex space-x-4">
                 <button 
                   onClick={handleSearch}
-                  disabled={isSearching}
-                  className={`flex items-center justify-center space-x-3 px-12 py-3 text-lg font-semibold rounded-lg transition-all ${
-                    isSearching 
-                      ? 'bg-gray-400 cursor-not-allowed text-white' 
-                      : 'btn-primary'
-                  }`}
+                  disabled={isSearching || !searchCriteria.destination.trim()}
+                  className="bg-primary-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
                 >
                   {isSearching ? (
                     <>
-                      <Loader className="h-6 w-6 animate-spin" />
+                      <Loader className="h-5 w-5 animate-spin" />
                       <span>Searching...</span>
                     </>
                   ) : (
                     <>
-                      <Search className="h-6 w-6" />
+                      <Search className="h-5 w-5" />
                       <span>Search Trips</span>
                     </>
                   )}

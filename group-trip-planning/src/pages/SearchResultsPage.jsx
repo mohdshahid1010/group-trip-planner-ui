@@ -1,413 +1,497 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
-import { Search, MapPin, Calendar, Users, Star, ArrowLeft, Filter, Loader } from 'lucide-react'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { Filter, MapPin, Calendar, Users, Star, Heart, Share2, SlidersHorizontal, Loader, AlertCircle, Trophy, Clock, ArrowLeft, Plus } from 'lucide-react'
 import { searchItineraries } from '../services/api'
+import { getPublishedItineraries } from '../utils/itineraryStorage'
+import { itineraries as mockItineraries } from '../data/mockData'
 
 const SearchResultsPage = () => {
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const location = useLocation()
-  const [filteredItineraries, setFilteredItineraries] = useState([])
-  const [sortBy, setSortBy] = useState('compatibility')
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+  const [itineraries, setItineraries] = useState([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [sortBy, setSortBy] = useState('matchingScore')
+  const [searchCriteria, setSearchCriteria] = useState({})
 
-  // Transform SearchResponseDTO to UI format
-  const transformApiResponse = (apiResults) => {
-    if (!Array.isArray(apiResults)) return [];
-    
-    return apiResults.map(item => ({
-      id: item.id,
-      title: item.itinerary || `Trip to ${item.destination}`,
-      description: item.description || '',
-      destination: item.destination || '',
-      duration: calculateDuration(item.start, item.end),
-      startDate: item.start ? new Date(item.start).toISOString().split('T')[0] : '',
-      endDate: item.end ? new Date(item.end).toISOString().split('T')[0] : '',
-      price: item.price || 0,
-      compatibilityScore: Math.round(item.matchingScore || 85),
-      rating: 4.5 + Math.random() * 0.5, // Generate random rating 4.5-5.0
-      reviewCount: Math.floor(Math.random() * 50) + 10, // Generate random review count 10-60
-      groupSize: 4 + Math.floor(Math.random() * 8), // Generate random group size 4-12
-      availableSlots: Math.floor(Math.random() * 4) + 1, // Generate random available slots 1-4
-      image: getDefaultImage(item.destination),
-      tags: generateTags(item.description, item.destination),
-      highlights: generateHighlights(item.description),
-      createdBy: generateCreator(),
-    }));
-  };
-
-  // Helper function to calculate duration
-  const calculateDuration = (start, end) => {
-    if (!start || !end) return '7 days';
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const diffTime = Math.abs(endDate - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return `${diffDays} days`;
-  };
-
-  // Helper function to get default image based on destination
-  const getDefaultImage = (destination) => {
+  // Function to get appropriate image based on destination and vibe
+  const getImageForDestination = (destination, vibe) => {
     const imageMap = {
-      'morocco': 'https://images.unsplash.com/photo-1539650116574-75c0c6d04e2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80',
-      'japan': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80',
-      'bali': 'https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80',
-      'patagonia': 'https://images.unsplash.com/photo-1610296669228-602fa827264c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80',
-    };
-    
-    const lowerDest = destination?.toLowerCase() || '';
-    for (const [key, url] of Object.entries(imageMap)) {
-      if (lowerDest.includes(key)) return url;
+      'Bali': 'https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'Japan': 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'Morocco': 'https://images.unsplash.com/photo-1539650116574-75c0c6d04e2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'Iceland': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'Kerala': 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2338&q=80',
+      'Switzerland': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'Thailand': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'Argentina': 'https://images.unsplash.com/photo-1610296669228-602fa827264c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'Chile': 'https://images.unsplash.com/photo-1610296669228-602fa827264c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
+    }
+
+    // Try to match destination first
+    for (const [dest, url] of Object.entries(imageMap)) {
+      if (destination?.toLowerCase().includes(dest.toLowerCase())) {
+        return url
+      }
+    }
+
+    // Fallback based on vibe if destination not matched
+    const vibeImages = {
+      'ADVENTURE': 'https://images.unsplash.com/photo-1610296669228-602fa827264c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'BEACHES': 'https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'CULTURAL': 'https://images.unsplash.com/photo-1539650116574-75c0c6d04e2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+      'WELLNESS': 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2338&q=80',
+      'NATURE': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'
+    }
+
+    return vibeImages[vibe] || vibeImages['ADVENTURE']
+  }
+
+  // Function to get creator avatar based on vibe
+  const getCreatorAvatar = (vibe) => {
+    const avatars = {
+      'ADVENTURE': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      'BEACHES': 'https://images.unsplash.com/photo-1494790108755-2616b612b647?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      'CULTURAL': 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      'WELLNESS': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     }
     
-    // Default travel image
-    return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80';
-  };
+    return avatars[vibe] || avatars['ADVENTURE']
+  }
 
-  // Helper function to generate tags based on description and destination
-  const generateTags = (description, destination) => {
-    const commonTags = ['Adventure', 'Culture', 'Food', 'Nature', 'Relaxation'];
-    const destTags = {
-      'morocco': ['Culture', 'Adventure', 'Desert'],
-      'japan': ['Culture', 'Food', 'Technology'],
-      'bali': ['Wellness', 'Beach', 'Nature'],
-      'patagonia': ['Adventure', 'Hiking', 'Wildlife'],
-    };
-    
-    const lowerDest = destination?.toLowerCase() || '';
-    for (const [key, tags] of Object.entries(destTags)) {
-      if (lowerDest.includes(key)) return tags;
+  // Function to calculate match score for an itinerary
+  const calculateMatchScore = (itinerary, criteria) => {
+    let score = 0
+    let maxScore = 0
+
+    // Destination matching (30% weight)
+    maxScore += 30
+    if (criteria.destination?.trim()) {
+      const destination = criteria.destination.toLowerCase()
+      const itineraryDest = itinerary.destination?.toLowerCase() || ''
+      
+      if (itineraryDest.includes(destination) || destination.includes(itineraryDest)) {
+        score += 30 // Exact or partial match
+      } else {
+        // Check for country/region matches
+        const commonWords = destination.split(/\s+/).filter(word => 
+          itineraryDest.includes(word) && word.length > 2
+        )
+        score += Math.min(20, commonWords.length * 10) // Partial credit
+      }
     }
-    
-    return commonTags.slice(0, 3);
-  };
 
-  // Helper function to generate highlights
-  const generateHighlights = (description) => {
-    if (description) {
-      // Extract key points from description if available
-      const sentences = description.split('.').slice(0, 3);
-      return sentences.map(s => s.trim()).filter(s => s.length > 0);
+    // Date matching (20% weight) - check if trip dates are available
+    maxScore += 20
+    if (criteria.startDate && criteria.endDate && itinerary.startDate && itinerary.endDate) {
+      const searchStart = new Date(criteria.startDate)
+      const searchEnd = new Date(criteria.endDate)
+      const itineraryStart = new Date(itinerary.startDate)
+      const itineraryEnd = new Date(itinerary.endDate)
+
+      // Check if dates overlap or are within reasonable range
+      if ((itineraryStart <= searchEnd && itineraryEnd >= searchStart)) {
+        score += 20 // Direct overlap
+      } else {
+        // Check if within 30 days of preferred dates
+        const daysDiff = Math.min(
+          Math.abs((itineraryStart - searchStart) / (1000 * 60 * 60 * 24)),
+          Math.abs((itineraryEnd - searchEnd) / (1000 * 60 * 60 * 24))
+        )
+        if (daysDiff <= 30) {
+          score += Math.max(5, 20 - daysDiff * 0.5) // Gradual decrease
+        }
+      }
+    } else if (!criteria.startDate && !criteria.endDate) {
+      score += 20 // No date preference, give full points
     }
-    return ['Amazing locations', 'Cultural experiences', 'Great company'];
-  };
 
-  // Helper function to generate creator info
-  const generateCreator = () => {
-    const creators = [
-      { id: 1, name: 'Olivia Bennett', avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b647?w=256&h=256&fit=facearea&facepad=2', tripCount: 12 },
-      { id: 2, name: 'Marcus Chen', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=256&h=256&fit=facearea&facepad=2', tripCount: 8 },
-      { id: 3, name: 'Sarah Williams', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=256&h=256&fit=facearea&facepad=2', tripCount: 15 },
-    ];
-    return creators[Math.floor(Math.random() * creators.length)];
-  };
+    // Budget matching (25% weight)
+    maxScore += 25
+    if (criteria.budget?.min || criteria.budget?.max) {
+      const minBudget = parseFloat(criteria.budget.min) || 0
+      const maxBudget = parseFloat(criteria.budget.max) || Infinity
+      const itineraryPrice = itinerary.price || 0
 
-  // Get search parameters
-  const searchQuery = searchParams.get('destination') || ''
-  const description = searchParams.get('description') || ''
-  const startDate = searchParams.get('startDate') || ''
-  const endDate = searchParams.get('endDate') || ''
-  const budgetRange = searchParams.get('budget') || 'all'
-  const groupSizeFilter = searchParams.get('groupSize') || 'all'
-  const selectedVibes = searchParams.get('vibes') ? searchParams.get('vibes').split(',') : []
-  const includeTravel = searchParams.get('includeTravel') === 'true'
-  const includeAccommodation = searchParams.get('includeAccommodation') === 'true'
+      if (itineraryPrice >= minBudget && itineraryPrice <= maxBudget) {
+        score += 25 // Within budget range
+      } else if (itineraryPrice < minBudget) {
+        // Under budget - still good but less than perfect
+        const diff = minBudget > 0 ? (minBudget - itineraryPrice) / minBudget : 0
+        score += Math.max(10, 25 - diff * 15)
+      } else {
+        // Over budget - penalize based on how much over
+        const diff = maxBudget !== Infinity ? (itineraryPrice - maxBudget) / maxBudget : 0
+        score += Math.max(0, 25 - diff * 25)
+      }
+    } else {
+      score += 25 // No budget preference, give full points
+    }
 
-  // Load initial data
+    // Vibe/Tags matching (25% weight)
+    maxScore += 25
+    if (criteria.vibe) {
+      const searchVibe = criteria.vibe.toLowerCase()
+      const tags = itinerary.tags?.map(tag => tag.toLowerCase()) || []
+      const travelStyle = itinerary.travelStyle?.toLowerCase() || ''
+      
+      if (tags.some(tag => tag.includes(searchVibe) || searchVibe.includes(tag)) ||
+          travelStyle.includes(searchVibe) || searchVibe.includes(travelStyle)) {
+        score += 25 // Direct vibe match
+      } else {
+        // Check for related vibes
+        const vibeMapping = {
+          'beaches': ['nature', 'wellness', 'luxury'],
+          'adventure': ['nature', 'photography', 'explorer'],
+          'cultural': ['food', 'photography', 'explorer'],
+          'wellness': ['nature', 'beaches', 'luxury'],
+          'foodie': ['cultural', 'wellness'],
+          'nature': ['adventure', 'photography', 'wellness'],
+          'photography': ['adventure', 'cultural', 'nature'],
+          'luxury': ['wellness', 'cultural', 'beaches']
+        }
+        
+        const relatedVibes = vibeMapping[searchVibe] || []
+        const hasRelated = tags.some(tag => relatedVibes.includes(tag)) ||
+                          relatedVibes.some(vibe => travelStyle.includes(vibe))
+        if (hasRelated) {
+          score += 15 // Related vibe match
+        }
+      }
+    } else {
+      score += 25 // No vibe preference, give full points
+    }
+
+    // Return percentage score
+    return Math.round((score / maxScore) * 100)
+  }
+
+  // Function to filter published itineraries based on search criteria
+  const filterPublishedItineraries = (criteria) => {
+    // Get published itineraries
+    const publishedItineraries = getPublishedItineraries()
+    
+    // Combine with mock itineraries for better results
+    const allItineraries = [...publishedItineraries, ...mockItineraries]
+
+    // Calculate match scores and filter
+    const filteredResults = allItineraries
+      .map(itinerary => ({
+        ...itinerary,
+        matchingScore: calculateMatchScore(itinerary, criteria),
+        // Ensure required fields for display
+        itinerary: itinerary.title || itinerary.itinerary || 'Untitled Trip',
+        totalDays: itinerary.duration ? parseInt(itinerary.duration) : itinerary.days?.length || 7,
+        vibe: itinerary.travelStyle || itinerary.vibe || 'ADVENTURE'
+      }))
+      .filter(itinerary => itinerary.matchingScore > 30) // Only show decent matches (>30%)
+      .sort((a, b) => b.matchingScore - a.matchingScore) // Sort by match score
+
+    return filteredResults
+  }
+
   useEffect(() => {
     // Check if we have search results from navigation state
-    const searchResults = location.state?.searchResults
-    
-    if (searchResults) {
-      // Use data from API response and transform it
-      const transformedResults = transformApiResponse(searchResults);
-      setFilteredItineraries(transformedResults);
-    } else {
-      // Fallback: Call API directly if no state data (e.g., direct URL access)
-      handleApiSearch()
-    }
-  }, [location.state])
+    const searchResults = location.state?.searchResults;
+    const searchCriteriaFromState = location.state?.searchCriteria;
 
-  // Handle API search
-  const handleApiSearch = async () => {
-    setIsLoading(true)
-    setError('')
+    if (searchResults) {
+      // Use the search results passed from ExplorePage
+      setItineraries(searchResults);
+      setSearchCriteria(searchCriteriaFromState || {});
+      setLoading(false);
+    } else {
+      // No search results in state, perform search based on URL params
+      const searchParams = new URLSearchParams(location.search);
+      const criteriaFromParams = {
+        destination: searchParams.get('destination') || '',
+        source: searchParams.get('source') || '',
+        startDate: searchParams.get('startDate') || '',
+        endDate: searchParams.get('endDate') || '',
+        budget: {
+          min: searchParams.get('budgetMin') || '',
+          max: searchParams.get('budgetMax') || ''
+        },
+        vibe: searchParams.get('vibe') || '',
+        includeTravel: searchParams.get('includeTravel') === 'true',
+        includeAccommodation: searchParams.get('includeAccommodation') === 'true'
+      };
+      
+      setSearchCriteria(criteriaFromParams);
+      
+      // Filter published itineraries
+      setLoading(true);
+      const filteredItineraries = filterPublishedItineraries(criteriaFromParams);
+      setItineraries(filteredItineraries);
+      setLoading(false);
+    }
+  }, [location]);
+
+  const performSearch = async (searchParams) => {
+    setLoading(true);
+    setError('');
 
     try {
-      const searchData = {
-        searchQuery,
-        description,
-        startDate,
-        endDate,
-        budgetRange,
-        groupSizeFilter,
-        selectedVibes,
-        includeTravel,
-        includeAccommodation
-      }
+      const searchCriteriaFromParams = {
+        destination: searchParams.get('destination') || '',
+        source: searchParams.get('source') || '',
+        startDate: searchParams.get('startDate') || '',
+        endDate: searchParams.get('endDate') || '',
+        budget: {
+          min: searchParams.get('budgetMin') || '',
+          max: searchParams.get('budgetMax') || ''
+        },
+        vibe: searchParams.get('vibe') || '',
+        includeTravel: searchParams.get('includeTravel') === 'true',
+        includeAccommodation: searchParams.get('includeAccommodation') === 'true'
+      };
 
-      const response = await searchItineraries(searchData)
-
-      if (response.success) {
-        const transformedResults = transformApiResponse(response.data || []);
-        setFilteredItineraries(transformedResults);
-      } else {
-        setError(response.error || 'Failed to load search results')
-      }
-    } catch (err) {
-      setError('An unexpected error occurred while loading results')
+      setSearchCriteria(searchCriteriaFromParams);
+      
+      // Filter published itineraries instead of API call
+      const filteredItineraries = filterPublishedItineraries(searchCriteriaFromParams);
+      setItineraries(filteredItineraries);
+      
+    } catch (error) {
+      console.error('Search error:', error);
+      setError('An unexpected error occurred while searching');
     } finally {
-      setIsLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  // Handle sorting
-  useEffect(() => {
-    if (filteredItineraries.length === 0) return
+  const sortOptions = [
+    { value: 'matchingScore', label: 'Sort by compatibility' },
+    { value: 'price-low', label: 'Price: Low to High' },
+    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'duration', label: 'Duration' }
+  ]
 
-    let sorted = [...filteredItineraries]
-
-    if (sortBy === 'price-low') {
-      sorted = sorted.sort((a, b) => a.price - b.price)
-    } else if (sortBy === 'price-high') {
-      sorted = sorted.sort((a, b) => b.price - a.price)
-    } else if (sortBy === 'rating') {
-      sorted = sorted.sort((a, b) => b.rating - a.rating)
-    } else {
-      // Default sort by compatibility
-      sorted = sorted.sort((a, b) => (b.compatibilityScore || 0) - (a.compatibilityScore || 0))
+  const sortedItineraries = [...itineraries].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-low':
+        return a.price - b.price
+      case 'price-high':
+        return b.price - a.price
+      case 'matchingScore':
+        return b.matchingScore - a.matchingScore
+      case 'duration':
+        return a.totalDays - b.totalDays
+      default:
+        return b.matchingScore - a.matchingScore
     }
-
-    setFilteredItineraries(sorted)
-  }, [sortBy])
-
-  const goBackToSearch = () => {
-    navigate('/explore')
-  }
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Header with Back Button */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={goBackToSearch}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back to Search</span>
-            </button>
-            <div className="h-6 border-l border-gray-300"></div>
+        {/* Back Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate('/explore')}
+            className="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors text-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Search</span>
+          </button>
+        </div>
+
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                Search Results
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                {itineraries.length} trips found
               </h1>
-              {searchQuery && (
-                <p className="text-gray-600 mt-1">
-                  Showing trips for "{searchQuery}"
-                </p>
-              )}
+              <p className="text-gray-600 text-lg">
+                {searchCriteria.destination ? `Trips to ${searchCriteria.destination}` : 'Search Results'}
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white text-sm"
+              >
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
 
-        {/* Search Summary */}
-        <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-            {searchQuery && (
-              <span className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full">
-                📍 {searchQuery}
-              </span>
-            )}
-            {startDate && (
-              <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                📅 {new Date(startDate).toLocaleDateString()}
-                {endDate && ` - ${new Date(endDate).toLocaleDateString()}`}
-              </span>
-            )}
-            {budgetRange !== 'all' && (
-              <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full">
-                💰 {budgetRange.charAt(0).toUpperCase() + budgetRange.slice(1)} budget
-              </span>
-            )}
-            {selectedVibes.length > 0 && (
-              <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full">
-                ✨ {selectedVibes.join(', ')}
-              </span>
-            )}
-          </div>
-        </div>
 
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-lg text-gray-700">
-            <span className="font-semibold">{filteredItineraries.length}</span> trips found
-          </p>
-          <div className="flex items-center space-x-4">
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="input-field w-auto"
-            >
-              <option value="compatibility">Sort by compatibility</option>
-              <option value="price-low">Sort by price (low to high)</option>
-              <option value="price-high">Sort by price (high to low)</option>
-              <option value="rating">Sort by rating</option>
-            </select>
-          </div>
-        </div>
 
         {/* Loading State */}
-        {isLoading && (
+        {loading && (
           <div className="flex justify-center items-center py-16">
             <div className="text-center">
               <Loader className="h-12 w-12 animate-spin text-primary-600 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">
-                Searching for trips...
-              </h3>
-              <p className="text-gray-600">
-                Please wait while we find the perfect trips for you
-              </p>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">Searching for trips...</h3>
+              <p className="text-gray-600">Please wait while we find the perfect trips for you</p>
             </div>
           </div>
         )}
 
         {/* Error State */}
-        {error && !isLoading && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-lg font-medium text-red-800">
-                  Search Error
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
-                </div>
-                <div className="mt-4">
-                  <button
-                    onClick={handleApiSearch}
-                    className="text-sm bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2 rounded-md transition-colors"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            </div>
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+            <h3 className="text-xl font-medium text-red-800 mb-2">Search Error</h3>
+            <p className="text-red-600">{error}</p>
+            <button onClick={() => navigate('/explore')} className="mt-4 btn-primary">Try Again</button>
           </div>
         )}
 
         {/* Results Grid */}
-        {!isLoading && !error && filteredItineraries.length > 0 ? (
+        {!loading && !error && sortedItineraries.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItineraries.map((trip) => (
-              <Link
-                key={trip.id}
-                to={`/trip/${trip.id}`}
-                className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <div className="aspect-w-16 aspect-h-9">
+            {sortedItineraries.map((trip) => (
+              <div key={trip.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                
+                {/* Image with badges */}
+                <div className="relative">
                   <img
-                    src={trip.image}
-                    alt={trip.title}
-                    className="w-full h-48 object-cover"
+                    src={trip.image || getImageForDestination(trip.destination, trip.vibe)}
+                    alt={trip.itinerary}
+                    className="w-full h-64 object-cover"
+                    onError={(e) => {
+                      e.target.src = getImageForDestination(trip.destination, trip.vibe)
+                    }}
                   />
+                  {/* Match percentage badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-orange-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                      {trip.matchingScore}% match
+                    </span>
+                  </div>
+
                 </div>
+                
                 <div className="p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="bg-primary-100 text-primary-800 text-sm font-bold px-3 py-1 rounded-full">
-                      {trip.compatibilityScore}% match
-                    </span>
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-medium">{trip.rating}</span>
-                      <span className="text-sm text-gray-500">({trip.reviewCount})</span>
-                    </div>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {trip.title}
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{trip.itinerary}</h3>
                   
-                  <p className="text-gray-600 mb-3">
-                    {trip.destination} • {trip.duration}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {trip.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                  {/* Location and duration */}
+                  <div className="flex items-center text-gray-600 mb-4">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    <span className="text-sm">{trip.destination} • {trip.totalDays} days</span>
                   </div>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-4">
-                      <span className="flex items-center text-sm text-gray-500">
-                        <Users className="h-4 w-4 mr-1" />
-                        {trip.availableSlots}/{trip.groupSize} spots left
-                      </span>
-                    </div>
-                    <span className="text-2xl font-bold text-primary-600">
-                      ₹{trip.price.toLocaleString()}
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
+                      {trip.vibe}
+                    </span>
+                    <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
+                      {trip.vibe === 'ADVENTURE' ? 'Mountains' : trip.vibe === 'BEACHES' ? 'Beach' : trip.vibe === 'CULTURAL' ? 'Culture' : trip.vibe === 'WELLNESS' ? 'Wellness' : 'Travel'}
+                    </span>
+                    <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
+                      {trip.vibe === 'ADVENTURE' ? 'Trekking' : trip.vibe === 'BEACHES' ? 'Party' : trip.vibe === 'CULTURAL' ? 'Heritage' : trip.vibe === 'WELLNESS' ? 'Yoga' : 'Experience'}
                     </span>
                   </div>
 
-                  {/* Creator Info */}
-                  <div className="flex items-center space-x-3 pt-4 border-t border-gray-200">
+                  {/* Spots left */}
+                  <div className="flex items-center text-gray-600 mb-4">
+                    <Users className="h-4 w-4 mr-1" />
+                    <span className="text-sm">{Math.floor(Math.random() * 5) + 1}/{Math.floor(Math.random() * 3) + 8} spots left</span>
+                  </div>
+
+                  {/* Price */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-2xl font-bold text-gray-900">
+                      ₹{trip.price.toLocaleString('en-IN')}
+                    </div>
+                  </div>
+
+                  {/* Creator info */}
+                  <div className="flex items-center space-x-3 mb-4 pb-4 border-b border-gray-100">
                     <img
-                      src={trip.createdBy.avatar}
-                      alt={trip.createdBy.name}
-                      className="h-8 w-8 rounded-full"
+                      src={getCreatorAvatar(trip.vibe)}
+                      alt="Creator"
+                      className="h-10 w-10 rounded-full"
                     />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {trip.createdBy.name}
+                      <p className="text-sm font-semibold text-gray-900">
+                        {trip.vibe === 'ADVENTURE' ? 'Marcus Chen' : trip.vibe === 'BEACHES' ? 'Olivia Bennett' : trip.vibe === 'CULTURAL' ? 'Sarah Williams' : 'Alex Kumar'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {trip.createdBy.tripCount} trips organized
+                        {Math.floor(Math.random() * 20) + 5} trips organized
                       </p>
                     </div>
                   </div>
+                  
+                  {/* Join button */}
+                  <Link 
+                    to={`/trip/${trip.id}`}
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-center block"
+                  >
+                    Join Itinerary
+                  </Link>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
-        ) : (
-          !isLoading && !error && (
-            <div className="text-center py-16">
-              <div className="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                <Search className="h-10 w-10 text-gray-400" />
+        )}
+
+        {/* No Results */}
+        {!loading && !error && sortedItineraries.length === 0 && (
+          <div className="text-center py-16">
+            <div className="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="h-10 w-10 text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-medium text-gray-900 mb-4">No matching trips found</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              We couldn't find any published trips matching your search criteria. 
+              {searchCriteria.destination && (
+                <span className="block mt-2 font-medium">
+                  Searched for: {searchCriteria.destination}
+                  {searchCriteria.vibe && ` • ${searchCriteria.vibe} style`}
+                  {searchCriteria.budget?.min && ` • ₹${parseInt(searchCriteria.budget.min).toLocaleString()}+ budget`}
+                </span>
+              )}
+            </p>
+            <div className="space-y-4">
+              {/* Create New Itinerary Option */}
+              <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl p-6 max-w-lg mx-auto">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="bg-white bg-opacity-20 rounded-full p-3">
+                    <Plus className="h-6 w-6" />
+                  </div>
+                </div>
+                <h4 className="text-xl font-semibold mb-2">Create Your Perfect Trip</h4>
+                <p className="text-primary-100 mb-4">
+                  No problem! Let our AI create a custom itinerary just for you based on your preferences.
+                </p>
+                <Link 
+                  to="/create" 
+                  state={{ searchCriteria }}
+                  className="inline-block bg-white text-primary-600 font-semibold py-2 px-6 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Create Custom Itinerary
+                </Link>
               </div>
-              <h3 className="text-2xl font-medium text-gray-900 mb-4">
-                No trips found
-              </h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                We couldn't find any trips matching your search criteria. Try adjusting your filters or searching for a different destination.
-              </p>
-              <div className="space-x-4">
-                <button
-                  onClick={goBackToSearch}
-                  className="btn-primary"
+              
+              {/* Other Options */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button 
+                  onClick={() => navigate('/explore')} 
+                  className="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                 >
                   Modify Search
                 </button>
-                <Link to="/create" className="btn-secondary">
-                  Create Your Own Trip
+                <Link 
+                  to="/explore" 
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
+                >
+                  Browse All Trips
                 </Link>
               </div>
             </div>
-          )
+          </div>
         )}
       </div>
     </div>

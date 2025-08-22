@@ -7,6 +7,7 @@ import SearchResultsPage from './pages/SearchResultsPage'
 import CreatePage from './pages/CreatePage'
 import ProfilePage from './pages/ProfilePage'
 import TripDetailsPage from './pages/TripDetailsPage'
+import MyTripsPage from './pages/MyTripsPage'
 import InboxPage from './pages/InboxPage'
 import BookingPage from './pages/BookingPage'
 
@@ -22,8 +23,10 @@ function App() {
             <Route path="/search-results" element={<SearchResultsPage />} />
             <Route path="/create" element={<CreatePage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/mytrips" element={<MyTripsPage />} />
             <Route path="/inbox" element={<InboxPage />} />
             <Route path="/trip/:id" element={<TripDetailsPage />} />
+            <Route path="/mytrip/:id" element={<TripDetailsPage />} />
             <Route path="/booking/:id" element={<BookingPage />} />
           </Routes>
         </main>

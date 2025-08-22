@@ -8,7 +8,7 @@ const InboxPage = () => {
     {
       id: 1,
       from: 'Marcus Chen',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       subject: 'Morocco Trip - Packing suggestions',
       preview: 'Hey Olivia! Excited about our upcoming Morocco adventure. I wanted to share some packing tips...',
       time: '2 hours ago',
@@ -18,7 +18,7 @@ const InboxPage = () => {
     {
       id: 2,
       from: 'Sarah Williams',
-      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
       subject: 'Thanks for the amazing Japan trip!',
       preview: 'Just wanted to thank you for organizing such an incredible cultural experience in Japan...',
       time: '1 day ago',

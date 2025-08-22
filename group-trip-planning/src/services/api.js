@@ -41,47 +41,68 @@ class ApiService {
     }
   }
 
-  // Search itineraries endpoint
-  async searchItineraries(searchData) {
-    // Map budget range to min/max values
-    const getBudgetRange = (budgetRange) => {
-      switch (budgetRange) {
-        case 'budget':
-          return { min: 0, max: 10000 };
-        case 'mid-range':
-          return { min: 10001, max: 30000 };
-        case 'luxury':
-          return { min: 30001, max: 60000 };
-        case 'premium':
-          return { min: 60001, max: 1000000 };
-        default:
-          return null;
-      }
+  // Search itineraries endpoint with enhanced criteria
+  async searchItineraries(searchCriteria) {
+    // For now, use mock data - in production this would call the real API
+    const { searchMockItineraries } = await import('../data/mockSearchResults.js');
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    try {
+      // Filter mock results based on search criteria
+      const filteredResults = searchMockItineraries(searchCriteria);
+      
+      // Transform to match expected API response format
+      const transformedResults = filteredResults.map(result => ({
+        id: result.id,
+        itinerary: result.name,
+        description: `Experience ${result.destination} with ${result.vibe.toLowerCase()} activities`,
+        matchingScore: result.matchingScore,
+        price: result.price,
+        priceDetails: {
+          totalPrice: result.price,
+          pricePerDay: Math.round(result.price / result.days.length),
+          description: `${result.vibe.toLowerCase()} tour package with accommodation and activities`,
+          includes: ["Accommodation", "Activities", "Local transport"],
+          excludes: ["International flights", "Personal expenses"]
+        },
+        start: result.startDate,
+        end: result.endDate,
+        source: searchCriteria.source || 'Various',
+        destination: result.destination,
+        vibe: result.vibe,
+        currency: "INR",
+        totalDays: result.days.length,
+        image: this.getImageForDestination(result.destination),
+        days: result.days
+      }));
+      
+      return {
+        success: true,
+        data: transformedResults
+      };
+    } catch (error) {
+      console.error('Mock search error:', error);
+      return {
+        success: false,
+        error: 'Failed to search itineraries. Please try again.'
+      };
+    }
+  }
+
+  // Helper method to get default images for destinations
+  getImageForDestination(destination) {
+    const imageMap = {
+      'Bali': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'Goa': 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'Himachal': 'https://images.unsplash.com/photo-1605538883669-825200433431?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'Kerala': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'Rajasthan': 'https://images.unsplash.com/photo-1545048702-79362596cdc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'
     };
-
-    // Create request body matching SearchCriteria Java POJO
-    const requestBody = {
-      prompt: searchData.description || null,
-      source: searchData.searchQuery || null,
-      destination: searchData.searchQuery || null,
-      startDate: searchData.startDate || null,
-      endDate: searchData.endDate || null,
-      budget: searchData.budgetRange !== 'all' ? getBudgetRange(searchData.budgetRange) : null,
-      vibe: searchData.selectedVibes?.length > 0 ? searchData.selectedVibes[0] : null, // Take first vibe as single string
-    };
-
-    // Remove null/undefined values
-    const cleanedRequestBody = Object.entries(requestBody).reduce((acc, [key, value]) => {
-      if (value !== null && value !== undefined) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    return this.makeRequest('/v1/search/', {
-      method: 'POST',
-      body: JSON.stringify(cleanedRequestBody),
-    });
+    
+    const key = Object.keys(imageMap).find(k => destination.includes(k));
+    return key ? imageMap[key] : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80';
   }
 
   // Get itinerary by ID
@@ -130,7 +151,7 @@ CRITICAL: Return ONLY valid JSON. Do not use markdown code blocks, backticks, or
       },
       "priceSection": {
         "amount": (total cost number),
-        "currency": "USD"
+        "currency": "INR"
       },
       "days": [
         {
@@ -166,7 +187,7 @@ CRITICAL: Return ONLY valid JSON. Do not use markdown code blocks, backticks, or
 
 **Requirements:**
 - Create itinerary for ${duration} days to ${formData.destination}
-- Budget: ${formData.budget} USD total
+- Budget: ₹${formData.budget} INR total
 - Travel style: ${formData.travelStyle}
 - Interests: ${formData.interests.join(', ')}
 - Start date: ${formData.startDate}

@@ -204,8 +204,8 @@ const BookingPage = () => {
                     <div>
                       <h4 className="font-medium text-blue-900 mb-1">What happens next?</h4>
                       <p className="text-blue-800 text-sm">
-                        You'll pay a ${depositAmount} deposit now to secure your spot. The remaining 
-                        ${remainingAmount} is due 30 days before departure.
+                        You'll pay a ₹{depositAmount} deposit now to secure your spot. The remaining 
+                        ₹{remainingAmount} is due 30 days before departure.
                       </p>
                     </div>
                   </div>
@@ -453,7 +453,7 @@ const BookingPage = () => {
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Trip price</span>
-                  <span className="font-medium">${trip.price}</span>
+                  <span className="font-medium">₹{trip.price}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Travelers</span>
@@ -461,15 +461,15 @@ const BookingPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${trip.price * bookingData.travelers}</span>
+                  <span className="font-medium">₹{trip.price * bookingData.travelers}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Deposit due now</span>
-                    <span className="text-primary-600">${depositAmount * bookingData.travelers}</span>
+                    <span className="text-primary-600">₹{depositAmount * bookingData.travelers}</span>
                   </div>
                   <p className="text-sm text-gray-500 mt-1">
-                    Remaining ${remainingAmount * bookingData.travelers} due 30 days before departure
+                    Remaining ₹{remainingAmount * bookingData.travelers} due 30 days before departure
                   </p>
                 </div>
               </div>

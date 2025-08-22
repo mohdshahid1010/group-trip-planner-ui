@@ -6,7 +6,7 @@ export const users = [
     name: "Olivia Bennett",
     age: 29,
     location: "San Francisco, CA",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b647?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b647?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
     bio: "Adventure seeker and culture enthusiast. Love exploring off-the-beaten-path destinations and meeting fellow travelers.",
     interests: ["Adventure", "Culture", "Photography", "Food"],
     travelStyle: "Explorer",
@@ -18,7 +18,7 @@ export const users = [
     name: "Marcus Chen",
     age: 32,
     location: "Austin, TX",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
     bio: "Tech professional who loves sustainable travel and outdoor adventures.",
     interests: ["Sustainable Travel", "Hiking", "Tech", "Local Cuisine"],
     travelStyle: "Eco-conscious",
@@ -30,7 +30,7 @@ export const users = [
     name: "Sarah Williams",
     age: 27,
     location: "Portland, OR",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
     bio: "Yoga instructor and wellness enthusiast. Seeking mindful travel experiences.",
     interests: ["Wellness", "Yoga", "Nature", "Meditation"],
     travelStyle: "Wellness",
@@ -157,6 +157,140 @@ export const itineraries = [
     itinerary: [],
     inclusions: ["Boutique accommodation", "Yoga classes", "Healthy meals", "Spa treatments"],
     exclusions: ["International flights", "Alcohol", "Personal expenses"]
+  },
+  {
+    id: 5,
+    title: "Iceland Northern Lights Expedition",
+    destination: "Iceland",
+    duration: "6 days",
+    startDate: "2024-12-10",
+    endDate: "2024-12-16",
+    price: 32000,
+    groupSize: 8,
+    availableSlots: 5,
+    compatibilityScore: 90,
+    rating: 4.8,
+    reviewCount: 28,
+    createdBy: users[0],
+    image: "https://images.unsplash.com/photo-1539066636418-c4c1b4b0b4e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+    highlights: ["Northern Lights viewing", "Blue Lagoon experience", "Golden Circle tour"],
+    tags: ["Adventure", "Nature", "Photography"],
+    participants: [users[0], users[1]],
+    itinerary: [
+      {
+        day: 1,
+        title: "Arrival in Reykjavik",
+        activities: ["Airport pickup", "City orientation", "Welcome dinner"],
+        meals: ["Dinner"],
+        accommodation: "Hotel Reykjavik Centrum"
+      },
+      {
+        day: 2,
+        title: "Golden Circle Adventure",
+        activities: ["Geysir geothermal area", "Gullfoss waterfall", "Thingvellir National Park"],
+        meals: ["Breakfast", "Lunch", "Dinner"],
+        accommodation: "Hotel Geysir"
+      }
+    ],
+    inclusions: ["4-star accommodation", "All transportation", "Professional guide", "Northern Lights hunting"],
+    exclusions: ["International flights", "Personal expenses", "Alcohol", "Optional activities"]
+  },
+  {
+    id: 6,
+    title: "Kerala Backwaters & Ayurveda",
+    destination: "Kerala, India",
+    duration: "9 days",
+    startDate: "2024-06-15",
+    endDate: "2024-06-24",
+    price: 15000,
+    groupSize: 10,
+    availableSlots: 6,
+    compatibilityScore: 87,
+    rating: 4.5,
+    reviewCount: 56,
+    createdBy: users[1],
+    image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+    highlights: ["Houseboat cruise", "Ayurvedic treatments", "Spice plantation visits"],
+    tags: ["Wellness", "Culture", "Nature"],
+    participants: [users[1], users[2]],
+    itinerary: [
+      {
+        day: 1,
+        title: "Cochin Arrival",
+        activities: ["Airport pickup", "Fort Kochi exploration", "Chinese fishing nets"],
+        meals: ["Lunch", "Dinner"],
+        accommodation: "Heritage Hotel, Fort Kochi"
+      }
+    ],
+    inclusions: ["Heritage hotels", "Houseboat stay", "All meals", "Ayurvedic treatments"],
+    exclusions: ["International flights", "Personal shopping", "Additional treatments"]
+  },
+  {
+    id: 7,
+    title: "Swiss Alps Photography Workshop",
+    destination: "Switzerland",
+    duration: "7 days",
+    startDate: "2024-07-20",
+    endDate: "2024-07-27",
+    price: 55000,
+    groupSize: 6,
+    availableSlots: 3,
+    compatibilityScore: 93,
+    rating: 4.9,
+    reviewCount: 15,
+    createdBy: users[0],
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+    highlights: ["Professional photography guidance", "Matterhorn sunrise", "Alpine lake reflections"],
+    tags: ["Photography", "Adventure", "Nature"],
+    participants: [users[0]],
+    itinerary: [
+      {
+        day: 1,
+        title: "Zermatt Arrival",
+        activities: ["Train from Zurich", "Equipment check", "Orientation walk"],
+        meals: ["Dinner"],
+        accommodation: "Alpine Lodge, Zermatt"
+      },
+      {
+        day: 2,
+        title: "Matterhorn Photography",
+        activities: ["Pre-dawn Matterhorn shoot", "Technique workshop", "Village exploration"],
+        meals: ["Breakfast", "Lunch", "Dinner"],
+        accommodation: "Alpine Lodge, Zermatt"
+      }
+    ],
+    inclusions: ["Mountain lodges", "Photography workshops", "Professional guide", "Equipment rental"],
+    exclusions: ["International flights", "Personal camera gear", "Travel insurance"]
+  },
+  {
+    id: 8,
+    title: "Thailand Island Hopping",
+    destination: "Thailand",
+    duration: "10 days",
+    startDate: "2024-08-05",
+    endDate: "2024-08-15",
+    price: 22000,
+    groupSize: 12,
+    availableSlots: 8,
+    compatibilityScore: 88,
+    rating: 4.6,
+    reviewCount: 73,
+    createdBy: users[2],
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80",
+    highlights: ["Phi Phi Islands", "Snorkeling adventures", "Beach parties"],
+    tags: ["Beach", "Adventure", "Social"],
+    participants: [users[2], users[1], users[0]],
+    itinerary: [
+      {
+        day: 1,
+        title: "Bangkok to Phuket",
+        activities: ["Flight to Phuket", "Beach orientation", "Welcome party"],
+        meals: ["Dinner"],
+        accommodation: "Beach Resort, Patong"
+      }
+    ],
+    inclusions: ["Beachfront hotels", "Island transfers", "Snorkeling gear", "Group activities"],
+    exclusions: ["International flights", "Alcohol", "Optional water sports"]
   }
 ];
 

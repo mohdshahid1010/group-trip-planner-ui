@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MapPin, Calendar, DollarSign, Users, Sparkles, Save, Share2, Eye } from 'lucide-react'
+import { MapPin, Calendar, Users, Sparkles, Save, Share2, Eye } from 'lucide-react'
 import { generateAIItinerary } from '../services/api'
 import { savePublishedItinerary } from '../utils/itineraryStorage'
 
@@ -307,7 +307,7 @@ const CreatePage = () => {
                   <input
                     type="text"
                     placeholder="Where do you want to go?"
-                    className="input-field pl-10"
+                    className="input-field"
                     value={formData.destination}
                     onChange={(e) => handleInputChange('destination', e.target.value)}
                     required
@@ -317,14 +317,13 @@ const CreatePage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Budget per person (USD) <span className="text-red-500">*</span>
+                  Budget per person (INR) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="number"
-                    placeholder="2000"
-                    className="input-field pl-10"
+                    placeholder="50000"
+                    className="input-field"
                     value={formData.budget}
                     onChange={(e) => handleInputChange('budget', e.target.value)}
                     required
@@ -341,7 +340,7 @@ const CreatePage = () => {
                   <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="date"
-                    className="input-field pl-10"
+                    className="input-field"
                     value={formData.startDate}
                     onChange={(e) => {
                       const selectedDate = e.target.value;
@@ -410,7 +409,7 @@ const CreatePage = () => {
                 <div className="relative">
                   <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <select
-                    className="input-field pl-10"
+                    className="input-field"
                     value={formData.groupSize}
                     onChange={(e) => handleInputChange('groupSize', e.target.value)}
                     required
@@ -664,7 +663,7 @@ const CreatePage = () => {
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-primary-600">
-                        ${generatedItinerary.estimatedCost}
+                        ₹{generatedItinerary.estimatedCost}
                       </div>
                       <p className="text-sm text-gray-600">estimated per person</p>
                     </div>
@@ -723,7 +722,7 @@ const CreatePage = () => {
                           ))}
                         </ul>
                         <div className="text-sm text-gray-500">
-                          Estimated cost: ${day.estimatedCost} per person
+                          Estimated cost: ₹{day.estimatedCost} per person
                         </div>
                       </div>
                     ))}
