@@ -5,8 +5,8 @@ export const mockItineraries = [
         name: "Bali Cultural Adventure",
         matchingScore: 92,
         destination: "Bali, Indonesia",
-        startDate: "2025-08-23",
-        endDate: "2025-08-29",
+        startDate: "2025-08-25",
+        endDate: "2025-08-31",
         vibe: "CULTURAL",
         price: 52000, // Overall price for this itinerary
         days: [
@@ -98,8 +98,8 @@ export const mockItineraries = [
         name: "Goa Beach Paradise",
         matchingScore: 88,
         destination: "Goa, India",
-        startDate: "2024-04-01",
-        endDate: "2024-04-07",
+        startDate: "2025-09-02",
+        endDate: "2025-09-08",
         vibe: "BEACHES",
         price: 18300, // Overall price for this itinerary
         days: [
@@ -180,94 +180,12 @@ export const mockItineraries = [
         ]
       },
       {
-        id: 3,
-        name: "Himachal Adventure Trek",
-        matchingScore: 95,
-        destination: "Himachal Pradesh, India",
-        startDate: "2024-05-10",
-        endDate: "2024-05-18",
-        vibe: "ADVENTURE",
-        price: 12000, // Overall price for this itinerary
-        days: [
-          {
-            id: 5,
-            events: [
-              {
-                id: 8,
-                traveling_detail: [
-                  { type: "VEHICLE", amount: 3500.0 }
-                ],
-                event_details: {
-                  text: "Journey to Manali",
-                  description: "Essential transport to base camp with safety equipment",
-                  duration: 480
-                },
-                fare: [
-                  { type: "travel", amount: 3500 },
-                  { type: "event", amount: 2000 }
-                ],
-                mandatory: true // Essential transport service
-              },
-              {
-                id: 9,
-                event_details: {
-                  text: "Mountain Welcome Ceremony",
-                  description: "Traditional local welcome and safety briefing",
-                  duration: 60
-                },
-                fare: [], // Free cultural welcome
-                mandatory: false
-              }
-            ]
-          },
-          {
-            id: 6,
-            events: [
-              {
-                id: 10,
-                event_details: {
-                  text: "Professional Trekking Guide Service",
-                  description: "Certified mountain guide for entire expedition - essential for safety",
-                  duration: 1440
-                },
-                fare: [
-                  { type: "guide", amount: 4000 }
-                ],
-                mandatory: true // Essential safety service
-              },
-              {
-                id: 11,
-                event_details: {
-                  text: "Group Morning Meditation",
-                  description: "Start your day with peaceful mountain meditation",
-                  duration: 30
-                },
-                fare: [], // Free wellness activity
-                mandatory: false
-              },
-              {
-                id: 12,
-                event_details: {
-                  text: "Hampta Pass Trek Experience",
-                  description: "Challenging trek through stunning alpine meadows",
-                  duration: 480
-                },
-                fare: [
-                  { type: "event", amount: 1000 }
-                ],
-                mandatory: false // Optional advanced trek
-              }
-            ]
-          }
-        ]
-      },
-      {
         id: 4,
         name: "Kerala Wellness Retreat",
         matchingScore: 85,
         destination: "Kerala, India",
-        startDate: "2024-06-05",
-        endDate: "2024-06-12",
+        startDate: "2025-09-10",
+        endDate: "2025-09-17",
         vibe: "WELLNESS",
         price: 20700, // Overall price for this itinerary
         days: [
@@ -352,8 +270,8 @@ export const mockItineraries = [
         name: "Rajasthan Royal Heritage",
         matchingScore: 90,
         destination: "Rajasthan, India",
-        startDate: "2024-07-20",
-        endDate: "2024-07-28",
+        startDate: "2025-09-20",
+        endDate: "2025-09-28",
         vibe: "CULTURAL",
         price: 26500, // Overall price for this itinerary
         days: [
@@ -439,8 +357,8 @@ export const mockItineraries = [
         name: "Kerala Backwaters & Wellness",
         matchingScore: 88,
         destination: "Kerala, India",
-        startDate: "2025-09-15",
-        endDate: "2025-09-20",
+        startDate: "2025-10-05",
+        endDate: "2025-10-10",
         vibe: "WELLNESS",
         price: 35000,
         days: [
@@ -507,8 +425,8 @@ export const mockItineraries = [
         name: "Rajasthan Desert Adventure",
         matchingScore: 94,
         destination: "Rajasthan, India", 
-        startDate: "2025-10-10",
-        endDate: "2025-10-16",
+        startDate: "2025-10-15",
+        endDate: "2025-10-21",
         vibe: "ADVENTURE",
         price: 42000,
         days: [
@@ -576,8 +494,8 @@ export const mockItineraries = [
         name: "Goa Beach Paradise",
         matchingScore: 85,
         destination: "Goa, India",
-        startDate: "2025-11-01", 
-        endDate: "2025-11-06",
+                startDate: "2025-10-25",
+        endDate: "2025-10-30",
         vibe: "BEACHES",
         price: 28000,
         days: [
@@ -650,51 +568,40 @@ export const mockItineraries = [
         ]
       },
       {
-        id: 9,
-        name: "Himalayan Trekking Expedition", 
+        id: 10,
+        name: "Rajasthan Desert Safari",
         matchingScore: 96,
-        destination: "Himachal Pradesh, India",
-        startDate: "2025-12-05",
-        endDate: "2025-12-12",
+        destination: "Jaipur, Rajasthan",
+        startDate: "2025-11-05",
+        endDate: "2025-11-12",
         vibe: "ADVENTURE",
-        price: 48000,
+        price: 32000,
         days: [
           {
             id: 1,
             events: [
               {
-                id: 401,
+                id: 501,
                 event_details: {
-                  text: "Base Camp Setup & Safety Briefing",
-                  description: "Equipment check and mountain safety training",
+                  text: "Reykjavik Arrival & Orientation",
+                  description: "Airport pickup and city orientation with Aurora briefing",
                   duration: 180
                 },
-                fare: [], // Free safety briefing
+                fare: [], // Free orientation
                 mandatory: false
               },
               {
-                id: 402,
+                id: 502,
                 event_details: {
-                  text: "Professional Trekking Guide",
-                  description: "Certified mountain guide for the entire expedition",
-                  duration: 10080
+                  text: "Northern Lights Base Package",
+                  description: "Essential gear, guide, and northern lights hunting tours",
+                  duration: 7200
                 },
                 fare: [
-                  { type: "guide", amount: 18000 }
+                  { type: "guide", amount: 15000 },
+                  { type: "equipment", amount: 5000 }
                 ],
-                mandatory: true // Essential for safety, included in price
-              },
-              {
-                id: 403,
-                event_details: {
-                  text: "High-altitude Camping Gear",
-                  description: "Professional grade tents, sleeping bags, and equipment",
-                  duration: 10080
-                },
-                fare: [
-                  { type: "equipment", amount: 12000 }
-                ],
-                mandatory: true // Essential equipment, included
+                mandatory: true // Essential for northern lights viewing
               }
             ]
           },
@@ -702,28 +609,97 @@ export const mockItineraries = [
             id: 2,
             events: [
               {
-                id: 404,
+                id: 503,
                 event_details: {
-                  text: "Summit Photography Package",
-                  description: "Professional photographer for summit photos",
+                  text: "Golden Circle Tour",
+                  description: "Geysir, Gullfoss waterfall, and Thingvellir National Park",
                   duration: 480
                 },
                 fare: [
-                  { type: "event", amount: 7500 }
+                  { type: "event", amount: 8000 }
                 ],
-                mandatory: false // Optional luxury service
+                mandatory: false // Optional sightseeing
               },
               {
-                id: 405,
+                id: 504,
                 event_details: {
-                  text: "Helicopter Rescue Insurance",
-                  description: "Premium insurance covering helicopter evacuation",
+                  text: "Blue Lagoon Premium Experience",
+                  description: "Luxury geothermal spa with premium package",
+                  duration: 240
+                },
+                fare: [
+                  { type: "event", amount: 12000 }
+                ],
+                mandatory: false // Luxury optional experience
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 11,
+        name: "Morocco Desert & Mountains Adventure",
+        matchingScore: 95,
+        destination: "Morocco",
+        startDate: "2025-11-15",
+        endDate: "2025-11-22",
+        vibe: "ADVENTURE",
+        price: 25000,
+        days: [
+          {
+            id: 1,
+            events: [
+              {
+                id: 601,
+                event_details: {
+                  text: "Marrakech Welcome",
+                  description: "Traditional welcome ceremony and medina orientation",
+                  duration: 120
+                },
+                fare: [], // Free welcome
+                mandatory: false
+              },
+              {
+                id: 602,
+                event_details: {
+                  text: "Riad Accommodation Package",
+                  description: "7 nights in traditional riad with all meals",
                   duration: 10080
                 },
                 fare: [
-                  { type: "insurance", amount: 4500 }
+                  { type: "accommodation", amount: 18000 },
+                  { type: "meals", amount: 5000 }
                 ],
-                mandatory: false // Optional but recommended
+                mandatory: true // Essential accommodation
+              }
+            ]
+          },
+          {
+            id: 2,
+            events: [
+              {
+                id: 603,
+                event_details: {
+                  text: "Atlas Mountains Trek",
+                  description: "Guided mountain trekking with Berber village visit",
+                  duration: 720
+                },
+                fare: [
+                  { type: "event", amount: 2500 }
+                ],
+                mandatory: false // Optional trek
+              },
+              {
+                id: 604,
+                event_details: {
+                  text: "Sahara Desert Experience",
+                  description: "Camel riding and desert camping under stars",
+                  duration: 1440
+                },
+                fare: [
+                  { type: "event", amount: 4000 }
+                ],
+                mandatory: false // Optional desert experience
               }
             ]
           }
@@ -747,9 +723,81 @@ export const mockItineraries = [
     return totalPrice;
   };
   
-  // Helper function to get itineraries by search criteria
+  // Helper function to calculate destination relevance score
+  const calculateDestinationScore = (itineraryDestination, searchDestination) => {
+    if (!searchDestination) return 50; // Default score when no destination specified
+    
+    const searchTerm = searchDestination.toLowerCase().trim();
+    const destination = itineraryDestination.toLowerCase();
+    
+    // Exact match gets highest score
+    if (destination === searchTerm) return 100;
+    
+    // Check if search term is contained in destination (partial match)
+    if (destination.includes(searchTerm)) return 90;
+    
+    // Check if destination is contained in search term (reverse partial match)
+    if (searchTerm.includes(destination.split(',')[0].trim())) return 85;
+    
+    // State/region matching for Indian destinations
+    const indianStateMatches = {
+      'goa': ['goa'],
+      'kerala': ['kerala', 'backwaters', 'kochi', 'cochin', 'munnar', 'alleppey'],
+      'rajasthan': ['rajasthan', 'jaipur', 'udaipur', 'jodhpur', 'jaisalmer'],
+      'himachal': ['himachal', 'manali', 'shimla', 'dharamshala', 'kasol'],
+      'maharashtra': ['mumbai', 'pune', 'lonavala', 'mahabaleshwar'],
+      'karnataka': ['bangalore', 'mysore', 'coorg', 'gokarna'],
+      'tamil nadu': ['chennai', 'ooty', 'kodaikanal', 'mahabalipuram']
+    };
+    
+    // Check state-level matches
+    for (const [state, keywords] of Object.entries(indianStateMatches)) {
+      if (destination.includes(state) && keywords.some(keyword => searchTerm.includes(keyword))) {
+        return 75;
+      }
+      if (keywords.some(keyword => destination.includes(keyword)) && searchTerm.includes(state)) {
+        return 75;
+      }
+    }
+    
+    // Country-level matching
+    const countryMatches = {
+      'india': ['india', 'indian'],
+      'indonesia': ['bali', 'indonesia', 'indonesian'],
+      'iceland': ['iceland', 'icelandic'],
+      'morocco': ['morocco', 'marrakech', 'casablanca']
+    };
+    
+    for (const [country, keywords] of Object.entries(countryMatches)) {
+      if (destination.includes(country) && keywords.some(keyword => searchTerm.includes(keyword))) {
+        return 60;
+      }
+    }
+    
+    // Similar keywords matching
+    const similarKeywords = {
+      'beach': ['beach', 'coastal', 'sea', 'ocean', 'island'],
+      'mountain': ['mountain', 'hill', 'trek', 'hiking', 'altitude'],
+      'desert': ['desert', 'sand', 'dune', 'camel'],
+      'cultural': ['heritage', 'temple', 'palace', 'fort', 'traditional'],
+      'adventure': ['adventure', 'trek', 'expedition', 'outdoor']
+    };
+    
+    for (const [category, keywords] of Object.entries(similarKeywords)) {
+      if (keywords.some(keyword => destination.includes(keyword)) && 
+          keywords.some(keyword => searchTerm.includes(keyword))) {
+        return 40;
+      }
+    }
+    
+    // No meaningful match found
+    return 10;
+  };
+
+  // Helper function to get itineraries by search criteria with generated relevance scores
   export const searchMockItineraries = (searchCriteria) => {
     console.log('🔍 SEARCHING ITINERARIES WITH CRITERIA:', searchCriteria);
+    console.log('🔍 Filtering by: destination, date range, and price with relevance scoring');
     console.log('🔍 Criteria type check:', typeof searchCriteria, Array.isArray(searchCriteria));
     
     // Early return with all data if criteria is empty or malformed
@@ -765,8 +813,8 @@ export const mockItineraries = [
       console.log(`  - ${itinerary.name}: ₹${itinerary.price.toLocaleString()} (${itinerary.destination}, ${itinerary.vibe})`);
     });
     
-    // DEBUG: If no criteria provided, return all results
-    const hasFilters = searchCriteria.destination || searchCriteria.vibe || searchCriteria.startDate || searchCriteria.endDate || (searchCriteria.budget && (searchCriteria.budget.min || searchCriteria.budget.max));
+    // DEBUG: If no criteria provided, return all results (only checking destination, dates, and price)
+    const hasFilters = searchCriteria.destination || searchCriteria.startDate || searchCriteria.endDate || (searchCriteria.budget && (searchCriteria.budget.min || searchCriteria.budget.max));
     
     if (!hasFilters) {
       console.log('🔄 No filters applied, returning all itineraries');
@@ -794,23 +842,8 @@ export const mockItineraries = [
       console.log(`  Result: ${beforeCount} → ${filteredItineraries.length} itineraries`);
     }
     
-    // Filter by vibe
-    if (searchCriteria.vibe) {
-      const beforeCount = filteredItineraries.length;
-      console.log(`\n✨ VIBE FILTER DEBUG:`);
-      console.log(`  Search vibe: "${searchCriteria.vibe}"`);
-      console.log(`  Available vibes:`);
-      filteredItineraries.forEach(itinerary => {
-        console.log(`    - ${itinerary.name}: "${itinerary.vibe}"`);
-      });
-      
-      filteredItineraries = filteredItineraries.filter(itinerary => {
-        const match = itinerary.vibe === searchCriteria.vibe;
-        console.log(`    "${itinerary.vibe}" === "${searchCriteria.vibe}" = ${match}`);
-        return match;
-      });
-      console.log(`  Result: ${beforeCount} → ${filteredItineraries.length} itineraries`);
-    }
+    // Skip vibe filtering - focusing only on destination, date range, and price
+    // Vibe is now used for display purposes only, not for filtering
     
     // Filter by date range (basic check if dates are provided)
     if (searchCriteria.startDate && searchCriteria.endDate) {
@@ -848,27 +881,52 @@ export const mockItineraries = [
       console.log(`Budget filter: ${beforeCount} → ${filteredItineraries.length} itineraries`);
     }
     
-    console.log(`\n🎯 FINAL RESULTS: ${filteredItineraries.length} itineraries found:`);
-    filteredItineraries.forEach(itinerary => {
-      console.log(`  ✅ ${itinerary.name}: ₹${itinerary.price.toLocaleString()} (${itinerary.matchingScore}% match)`);
+    // Generate relevance scores for all filtered results
+    console.log(`\n🎯 GENERATING RELEVANCE SCORES:`);
+    const scoredItineraries = filteredItineraries.map(itinerary => {
+      const relevanceScore = calculateDestinationScore(itinerary.destination, searchCriteria.destination);
+      console.log(`  📊 ${itinerary.name}: ${relevanceScore}% relevance (${itinerary.destination})`);
+      
+      return {
+        ...itinerary,
+        relevanceScore,
+        totalPrice: itinerary.price // Use the itinerary-level price
+      };
     });
     
-    // 🎯 FALLBACK: If no results match criteria, show all itineraries
-    if (filteredItineraries.length === 0) {
+    // Sort by relevance score in descending order (highest first)
+    scoredItineraries.sort((a, b) => b.relevanceScore - a.relevanceScore);
+    
+    console.log(`\n🎯 FINAL RESULTS: ${scoredItineraries.length} itineraries found (sorted by relevance):`);
+    scoredItineraries.forEach((itinerary, index) => {
+      console.log(`  ${index + 1}. ${itinerary.name}: ${itinerary.relevanceScore}% relevance | ₹${itinerary.price.toLocaleString()} (${itinerary.destination})`);
+    });
+    
+    // 🎯 FALLBACK: If no results match criteria, show all itineraries with default scores
+    if (scoredItineraries.length === 0) {
       console.log('\n🔄 NO MATCHES FOUND - Applying FALLBACK: Showing all available itineraries');
-      filteredItineraries = [...mockItineraries];
-      
-      console.log(`🔄 FALLBACK RESULTS: Showing all ${filteredItineraries.length} itineraries:`);
-      filteredItineraries.forEach(itinerary => {
-        console.log(`  📋 ${itinerary.name}: ₹${itinerary.price.toLocaleString()} (${itinerary.matchingScore}% match)`);
+      const fallbackItineraries = mockItineraries.map(itinerary => {
+        const relevanceScore = calculateDestinationScore(itinerary.destination, searchCriteria.destination);
+        return {
+          ...itinerary,
+          relevanceScore,
+          totalPrice: itinerary.price
+        };
       });
+      
+      // Sort fallback results by relevance too
+      fallbackItineraries.sort((a, b) => b.relevanceScore - a.relevanceScore);
+      
+      console.log(`🔄 FALLBACK RESULTS: Showing all ${fallbackItineraries.length} itineraries (sorted by relevance):`);
+      fallbackItineraries.forEach((itinerary, index) => {
+        console.log(`  ${index + 1}. ${itinerary.name}: ${itinerary.relevanceScore}% relevance | ₹${itinerary.price.toLocaleString()} (${itinerary.destination})`);
+      });
+      
+      return fallbackItineraries;
     }
     
-    // Return itineraries with their pre-defined prices
-    return filteredItineraries.map(itinerary => ({
-      ...itinerary,
-      totalPrice: itinerary.price // Use the itinerary-level price
-    }));
+    // Return sorted itineraries with relevance scores
+    return scoredItineraries;
   };
   
   // DEBUG: Simple function that always returns all itineraries for testing

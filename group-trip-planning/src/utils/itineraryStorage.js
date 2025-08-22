@@ -21,10 +21,14 @@ export const getPublishedItineraries = () => {
 export const savePublishedItinerary = (generatedItinerary, formData) => {
   try {
     // Convert generated itinerary to profile-compatible format
+    const isJourneyPlanning = generatedItinerary.isJourneyPlanning || (generatedItinerary.source && generatedItinerary.source !== null);
+    
     const profileItinerary = {
       id: Date.now(), // Use timestamp as unique ID
       title: generatedItinerary.title,
       destination: generatedItinerary.destination,
+      source: generatedItinerary.source || null, // Store source for journey planning
+      isJourneyPlanning: isJourneyPlanning,
       duration: generatedItinerary.duration,
       startDate: generatedItinerary.startDate,
       endDate: generatedItinerary.endDate,
@@ -47,7 +51,10 @@ export const savePublishedItinerary = (generatedItinerary, formData) => {
       createdAt: new Date().toISOString(),
       isPublished: true,
       isAIGenerated: !generatedItinerary.isFallback,
-      originalFormData: formData // Store original form data for reference
+      aiGenerated: true, // Additional flag for AI generated content
+      journeyType: isJourneyPlanning ? 'multi-city' : 'single-destination',
+      originalFormData: formData, // Store original form data for reference
+      aiResponse: generatedItinerary.aiResponse || null // Store AI response for debugging
     };
 
     // Get existing itineraries

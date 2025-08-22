@@ -68,13 +68,22 @@ const MyTripsPage = () => {
                   {publishedItineraries.filter(trip => trip.isAIGenerated).length > 0 && 
                     ` • ${publishedItineraries.filter(trip => trip.isAIGenerated).length} AI-generated`
                   }
+                  {publishedItineraries.filter(trip => trip.isJourneyPlanning).length > 0 && 
+                    ` • ${publishedItineraries.filter(trip => trip.isJourneyPlanning).length} journey plan${publishedItineraries.filter(trip => trip.isJourneyPlanning).length !== 1 ? 's' : ''}`
+                  }
                 </p>
               </div>
             </div>
-            <Link to="/create" className="btn-primary flex items-center space-x-2">
-              <Plus className="h-4 w-4" />
-              <span>Create New Trip</span>
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link to="/ai-search" className="btn-secondary flex items-center space-x-2 border-purple-200 text-purple-600 hover:bg-purple-50">
+                <Sparkles className="h-4 w-4" />
+                <span>AI Generator</span>
+              </Link>
+              <Link to="/create" className="btn-primary flex items-center space-x-2">
+                <Plus className="h-4 w-4" />
+                <span>Create Trip</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -82,7 +91,7 @@ const MyTripsPage = () => {
       {/* Stats */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-600">
                 {publishedItineraries.length}
@@ -94,6 +103,12 @@ const MyTripsPage = () => {
                 {publishedItineraries.filter(trip => trip.isAIGenerated).length}
               </div>
               <div className="text-sm text-gray-600">AI Generated</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary-600">
+                {publishedItineraries.filter(trip => trip.isJourneyPlanning).length}
+              </div>
+              <div className="text-sm text-gray-600">Journey Plans</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-600">
@@ -123,7 +138,7 @@ const MyTripsPage = () => {
                     alt={trip.title}
                     className="w-full h-48 object-cover"
                   />
-                  <div className="absolute top-2 left-2">
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
                     {trip.isAIGenerated ? (
                       <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded flex items-center space-x-1">
                         <Sparkles className="h-3 w-3" />
@@ -132,6 +147,12 @@ const MyTripsPage = () => {
                     ) : (
                       <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
                         Sample
+                      </span>
+                    )}
+                    {trip.isJourneyPlanning && (
+                      <span className="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded flex items-center space-x-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>Journey Plan</span>
                       </span>
                     )}
                   </div>
@@ -146,7 +167,12 @@ const MyTripsPage = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-1">
                       <MapPin className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{trip.destination}</span>
+                      <span className="text-sm text-gray-600">
+                        {trip.isJourneyPlanning && trip.source ? 
+                          `${trip.source} → ${trip.destination}` : 
+                          trip.destination
+                        }
+                      </span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Star className="h-4 w-4 text-yellow-400 fill-current" />
@@ -206,11 +232,17 @@ const MyTripsPage = () => {
               No trips published yet
             </h3>
             <p className="text-gray-600 mb-6">
-              Create and publish your first trip to share with fellow travelers
+              Create and publish your first trip to share with fellow travelers, or use our AI generator for instant itineraries
             </p>
-            <Link to="/create" className="btn-primary">
-              Create Your First Trip
-            </Link>
+            <div className="flex justify-center space-x-3">
+              <Link to="/ai-search" className="btn-secondary flex items-center space-x-2 border-purple-200 text-purple-600 hover:bg-purple-50">
+                <Sparkles className="h-4 w-4" />
+                <span>Generate with AI</span>
+              </Link>
+              <Link to="/create" className="btn-primary">
+                Create Manually
+              </Link>
+            </div>
           </div>
         )}
       </div>

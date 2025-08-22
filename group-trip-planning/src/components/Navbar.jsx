@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Compass, Plus, MessageCircle, User } from 'lucide-react'
+import { Home, Compass, Plus, MessageCircle, User, Sparkles } from 'lucide-react'
 
 const Navbar = () => {
   const location = useLocation()
@@ -7,6 +7,7 @@ const Navbar = () => {
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/explore', icon: Compass, label: 'Explore' },
+    { path: '/ai-search', icon: Sparkles, label: 'AI Search' },
     { path: '/create', icon: Plus, label: 'Create' },
     { path: '/inbox', icon: MessageCircle, label: 'Inbox' },
     { path: '/profile', icon: User, label: 'Profile' },
