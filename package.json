@@ -1,0 +1,20 @@
+{
+  "name": "group-trip-planner-ui",
+  "version": "1.0.0",
+  "description": "A collaborative trip planning application that allows groups to organize and manage travel itineraries, share ideas, and keep track of expenses.",
+  "homepage": "https://github.com/mohdshahid1010/group-trip-planner-ui#readme",
+  "bugs": {
+    "url": "https://github.com/mohdshahid1010/group-trip-planner-ui/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohdshahid1010/group-trip-planner-ui.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
