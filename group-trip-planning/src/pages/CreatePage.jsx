@@ -707,7 +707,7 @@ const CreatePage = () => {
 
                 {/* Itinerary Details */}
                 <div className="bg-white rounded-xl shadow-sm p-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Daily Itinerary</h3>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-6">Your Itinerary</h1>
                   <div className="space-y-6">
                     {generatedItinerary.days.map((day) => (
                       <div key={day.day} className="border-l-4 border-primary-500 pl-6">
