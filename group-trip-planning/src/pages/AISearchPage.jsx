@@ -231,14 +231,14 @@ const AISearchPage = () => {
             AI Itinerary Generator
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Tell us your travel dreams in natural language! Plan journeys from your city to any destination, or explore local activities. Whether you have specific budget, dates, and locations, or just want to explore what's possible - our AI will create the perfect itinerary with travel suggestions.
+            Tell us your travel dreams in natural language! Plan journeys from your city to any destination, or explore local activities. 
           </p>
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-3xl mx-auto">
+          {/* <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-3xl mx-auto">
             <p className="text-sm text-blue-800 font-semibold mb-2">🎯 Smart Date Planning:</p>
             <p className="text-sm text-blue-700">
               If no future dates are given, our AI automatically creates itineraries starting from <strong>tomorrow</strong> with a <strong>7-day duration</strong> for practical trip planning!
             </p>
-          </div>
+          </div> */}
         </div>
 
         {/* Step 1: Search Input */}
@@ -257,7 +257,7 @@ const AISearchPage = () => {
                   <textarea
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Example: 'Plan a trip from Mumbai to Goa with adventure activities' or 'I want to travel to Kerala focusing on cultural experiences' or 'Budget-friendly journey to Himachal' (AI will auto-schedule from tomorrow for 7 days if no dates given)..."
+                    placeholder="Example: 'Plan a trip from Mumbai to Goa with adventure activities' .."
                     className="w-full h-32 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-200 resize-none text-lg"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && e.ctrlKey) {
